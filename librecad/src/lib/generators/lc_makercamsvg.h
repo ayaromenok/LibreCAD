@@ -90,6 +90,7 @@ private:
 
     void writeCubicBeziers(const std::vector<RS_Vector> &control_points, bool is_closed);
     void writeQuadraticBeziers(const std::vector<RS_Vector> &control_points, bool is_closed);
+    void writeImage(RS_Image* image);
 
     std::vector<RS_Vector> calcCubicBezierPoints(const std::vector<RS_Vector> &control_points, bool is_closed);
     std::vector<RS_Vector> calcQuadraticBezierPoints(const std::vector<RS_Vector> &control_points, bool is_closed);

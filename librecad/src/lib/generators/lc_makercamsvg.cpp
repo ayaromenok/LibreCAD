@@ -268,6 +268,9 @@ void LC_MakerCamSVG::writeEntity(RS_Entity* entity) {
         case RS2::EntitySplinePoints:
             writeSplinepoints((LC_SplinePoints*)entity);
             break;
+        case RS2::EntityImage:
+            writeImage((RS_Image*)entity);
+            break;
 
         default:
             RS_DEBUG->print(RS_Debug::D_NOTICE,
@@ -830,4 +833,20 @@ RS_Vector LC_MakerCamSVG::calcEllipsePointDerivative(double majorradius, double 
 double LC_MakerCamSVG::calcAlpha(double angle) {
 
     return sin(angle) * ((sqrt(4.0 + 3.0 * pow(tan(angle / 2), 2.0)) - 1.0) / 3.0);
+}
+
+void LC_MakerCamSVG::writeImage(RS_Image* image)
+{
+    RS_DEBUG->print("RS_MakerCamSVG::writeImage: Writing image ...");
+
+    RS_Vector insertionPoint = convertToSvg(image->getInsertionPoint());
+
+    xmlWriter->addElement("image", NAMESPACE_URI_SVG);
+        xmlWriter->addAttribute("x", lengthXml(insertionPoint.x));
+        xmlWriter->addAttribute("y", lengthXml(insertionPoint.y - image->getImageHeight()));
+        xmlWriter->addAttribute("height", lengthXml(image->getImageHeight()));
+        xmlWriter->addAttribute("width", lengthXml(image->getImageWidth()));
+        xmlWriter->addAttribute("preserveAspectRatio", "none");  //height and width above used
+        xmlWriter->addAttribute("xlink:href", image->getData().file.toStdString());
+    xmlWriter->closeElement();
 }
