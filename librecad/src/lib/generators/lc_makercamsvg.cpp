@@ -345,12 +345,30 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
 
     RS_Pen pen = line->getPen();
 
+    //enum librecad>src>lib>engine>rs.h:642>LineType
+    //LineByBlock = -2,
+    //LineByLayer = -1,
+    //LineTypeUnchanged=26 //sane as LineByBlock
     if ((RS2::SolidLine != pen.getLineType()) | convertLineTypes ) {
+        //! only pattern predefined(i.e dash, dash(tiny), dash(small), dash(large)),
+        //! but not exact proportions/absolute size
+        //!
         //! \todo de escalate debug info level
         RS_DEBUG->print(RS_Debug::D_WARNING,"RS_MakerCamSVG::writeLine: convert to Path ...");
-        xmlWriter->addElement("path", NAMESPACE_URI_SVG);
-        // probbably, we need to use ID globally for non-CAM export
+
+        double height = max.y - min.y;
+        startpoint.set(startpoint.x, height-startpoint.y);
+        endpoint.set(endpoint.x, height-endpoint.y);
+
+        // dot(point) implemented as circle with radius 0.1,
+        // so can be line segment with 0.2 lengths
+        std::string path = svgPathMoveTo(convertToSvg(startpoint));
+        //bake line to path here
+        path += svgPathLineTo(convertToSvg(endpoint));
+
+        xmlWriter->addElement("path", NAMESPACE_URI_SVG);        
         xmlWriter->addAttribute("id", QString::number(line->getId()).toStdString());
+        xmlWriter->addAttribute("d", path);
         xmlWriter->closeElement();
     }
     else {
