@@ -66,11 +66,13 @@ LC_MakerCamSVG::LC_MakerCamSVG(LC_XMLWriterInterface* xmlWriter,
                                bool writeInvisibleLayers,
                                bool writeConstructionLayers,
 							   bool writeBlocksInline,
-							   bool convertEllipsesToBeziers):
+                               bool convertEllipsesToBeziers,
+                               bool convertLineTypes):
 	writeInvisibleLayers(writeInvisibleLayers)
   ,writeConstructionLayers(writeConstructionLayers)
   ,writeBlocksInline(writeBlocksInline)
   ,convertEllipsesToBeziers(convertEllipsesToBeziers)
+  ,convertLineTypes(convertLineTypes)
   ,xmlWriter(xmlWriter)
   ,offset(0.,0.)
 {
@@ -341,14 +343,27 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
     RS_Vector startpoint = convertToSvg(line->getStartpoint());
     RS_Vector endpoint = convertToSvg(line->getEndpoint());
 
-    xmlWriter->addElement("line", NAMESPACE_URI_SVG);
+    RS_Pen pen = line->getPen();
 
-    xmlWriter->addAttribute("x1", lengthXml(startpoint.x));
-    xmlWriter->addAttribute("y1", lengthXml(startpoint.y));
-    xmlWriter->addAttribute("x2", lengthXml(endpoint.x));
-    xmlWriter->addAttribute("y2", lengthXml(endpoint.y));
+    if ((RS2::SolidLine != pen.getLineType()) | convertLineTypes ) {
+        //! \todo de escalate debug info level
+        RS_DEBUG->print(RS_Debug::D_WARNING,"RS_MakerCamSVG::writeLine: convert to Path ...");
+        xmlWriter->addElement("path", NAMESPACE_URI_SVG);
+        // probbably, we need to use ID globally for non-CAM export
+        xmlWriter->addAttribute("id", QString::number(line->getId()).toStdString());
+        xmlWriter->closeElement();
+    }
+    else {
+        RS_DEBUG->print("RS_MakerCamSVG::writeLine: write standard line ...");
+        xmlWriter->addElement("line", NAMESPACE_URI_SVG);
 
-    xmlWriter->closeElement();
+        xmlWriter->addAttribute("x1", lengthXml(startpoint.x));
+        xmlWriter->addAttribute("y1", lengthXml(startpoint.y));
+        xmlWriter->addAttribute("x2", lengthXml(endpoint.x));
+        xmlWriter->addAttribute("y2", lengthXml(endpoint.y));
+
+        xmlWriter->closeElement();
+    }
 }
 
 void LC_MakerCamSVG::writePolyline(RS_Polyline* polyline) {

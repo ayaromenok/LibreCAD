@@ -59,7 +59,8 @@ public:
                    bool writeInvisibleLayers = true,
                    bool writeConstructionLayers = true,
                    bool writeBlocksInline = false,
-                   bool convertEllipsesToBeziers = false);
+                   bool convertEllipsesToBeziers = false,
+                   bool convertLineTypes = false);
 
 	~LC_MakerCamSVG() = default;
 
@@ -121,6 +122,7 @@ private:
     bool writeConstructionLayers;
     bool writeBlocksInline;
     bool convertEllipsesToBeziers;
+    bool convertLineTypes;
 
     std::unique_ptr<LC_XMLWriterInterface> xmlWriter;
 
