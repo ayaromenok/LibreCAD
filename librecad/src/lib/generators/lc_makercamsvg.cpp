@@ -365,7 +365,6 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
         // so can be line segment with 0.2 lengths
         std::string path = svgPathMoveTo(convertToSvg(startpoint));
         path += svgPathDashDotLine(startpoint, endpoint, pen.getLineType());
-        path += svgPathLineTo(convertToSvg(endpoint));
 
         xmlWriter->addElement("path", NAMESPACE_URI_SVG);        
         xmlWriter->addAttribute("id", QString::number(line->getId()).toStdString());
@@ -902,6 +901,7 @@ std::string LC_MakerCamSVG::svgPathDashDotLine(RS_Vector startpoint, RS_Vector e
     double xStep = (endpoint.x-startpoint.x)/lineIter;
     double yStep = (endpoint.y-startpoint.y)/lineIter;
     RS_Vector lastPos;
+    bool lastOpIsMove = true;
     for (int i=0; i<lineIter; i++){
         res = -1;
         switch (type){
@@ -917,11 +917,16 @@ std::string LC_MakerCamSVG::svgPathDashDotLine(RS_Vector startpoint, RS_Vector e
             RS_DEBUG->print(RS_Debug::D_WARNING,"i=%d,\tres %d\t pos %f,%f", i, res, lastPos.x, lastPos.y);
             if ((oddEvenCount%2) == 0) {
                 path += svgPathLineTo(convertToSvg(lastPos));
+                lastOpIsMove = false;
             } else {
                 path += svgPathMoveTo(convertToSvg(lastPos));
+                lastOpIsMove = true;
             }
             oddEvenCount++;
         }
+    }
+    if (lastOpIsMove) {
+        path += svgPathLineTo(convertToSvg(endpoint));
     }
     return path;
 }
