@@ -345,10 +345,11 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
 
     RS_Pen pen = line->getPen();
 
+    //! \todo evaluate layer/block line type
     //enum librecad>src>lib>engine>rs.h:642>LineType
     //LineByBlock = -2,
     //LineByLayer = -1,
-    //LineTypeUnchanged=26 //sane as LineByBlock
+    //LineTypeUnchanged=26 //same as LineByBlock
     if ((RS2::SolidLine != pen.getLineType()) | convertLineTypes ) {
         //! only pattern predefined(i.e dash, dash(tiny), dash(small), dash(large)),
         //! but not exact proportions/absolute size
@@ -363,7 +364,7 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
         // dot(point) implemented as circle with radius 0.1,
         // so can be line segment with 0.2 lengths
         std::string path = svgPathMoveTo(convertToSvg(startpoint));
-        //bake line to path here
+        path += svgPathDashDotLine(startpoint, endpoint, pen.getLineType());
         path += svgPathLineTo(convertToSvg(endpoint));
 
         xmlWriter->addElement("path", NAMESPACE_URI_SVG);        
@@ -882,4 +883,40 @@ void LC_MakerCamSVG::writeImage(RS_Image* image)
         xmlWriter->addAttribute("preserveAspectRatio", "none");  //height and width above used
         xmlWriter->addAttribute("xlink:href", image->getData().file.toStdString());
     xmlWriter->closeElement();
+}
+
+std::string LC_MakerCamSVG::svgPathDashDotLine(RS_Vector startpoint, RS_Vector endpoint, RS2::LineType type, double scale ) const
+{
+    RS_DEBUG->print("RS_MakerCamSVG::svgPathDashDotLine: convert line to dot/dash path");
+    double lineLengh = startpoint.distanceTo(endpoint);
+    double lineStep = 0.2;
+    std::string path;
+    int res;
+    int lineIter = round(lineLengh*scale/lineStep); //step 2mm
+    int oddEvenCount = 0;
+    double xStep = (endpoint.x-startpoint.x)/lineIter;
+    double yStep = (endpoint.y-startpoint.y)/lineIter;
+    RS_Vector lastPos;
+    for (int i=0; i<lineIter; i++){
+        res = -1;
+        switch (type){
+        case RS2::DashLineTiny:{ res = i%1; break;}
+        case RS2::DashLine2:{  res = i%2;break;}
+        case RS2::DashLine:{ res = i%4; break;}
+        case RS2::DashLineX2:{ res = i%8;break;}
+        default:
+            break;
+        }
+        if (0 == res){
+            lastPos.set(startpoint.x+i*xStep, startpoint.y+i*yStep);
+            RS_DEBUG->print(RS_Debug::D_WARNING,"i=%d,\tres %d\t pos %f,%f", i, res, lastPos.x, lastPos.y);
+            if ((oddEvenCount%2) == 0) {
+                path += svgPathLineTo(convertToSvg(lastPos));
+            } else {
+                path += svgPathMoveTo(convertToSvg(lastPos));
+            }
+            oddEvenCount++;
+        }
+    }
+    return path;
 }
