@@ -369,6 +369,11 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
 
         xmlWriter->addElement("path", NAMESPACE_URI_SVG);        
         xmlWriter->addAttribute("id", QString::number(line->getId()).toStdString());
+        if (0.0 != pen.getWidth()){
+            xmlWriter->addAttribute("stroke-width", QString::number((pen.getWidth()/100.0)).toStdString());
+         } else {
+            xmlWriter->addAttribute("stroke-width", "0.2");     //! 0.2mme - default size of point in SVG exported
+        }
         xmlWriter->addAttribute("d", path);
         xmlWriter->closeElement();
     }
