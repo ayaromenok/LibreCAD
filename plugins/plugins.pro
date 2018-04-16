@@ -18,7 +18,8 @@ SUBDIRS     = \
         sample \
         picfile \
         plotequation \
-        gear
+        gear \
+        svgfile
 
 TRANSLATIONS = ./ts/plugins_ar.ts \
     ./ts/plugins_ca.ts \
