@@ -344,13 +344,9 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
     RS_Vector endpoint = convertToSvg(line->getEndpoint());
 
     RS_Pen pen = line->getPen();
+    RS2::LineType lineType = pen.getLineType();
 
-    //! \todo evaluate layer/block line type
-    //enum librecad>src>lib>engine>rs.h:642>LineType
-    //LineByBlock = -2,
-    //LineByLayer = -1,
-    //LineTypeUnchanged=26 //same as LineByBlock
-    if ((RS2::SolidLine != pen.getLineType()) | convertLineTypes ) {
+    if ((RS2::SolidLine != lineType) | convertLineTypes ) {
         //! only pattern predefined(i.e dash, dash(tiny), dash(small), dash(large)),
         //! but not exact proportions/absolute size
         //!
@@ -363,12 +359,22 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
 
         // dot(point) implemented as circle with radius 0.1,
         // so can be line segment with 0.2 lengths
-        std::string path = svgPathMoveTo(convertToSvg(startpoint));
-        path += svgPathDashDotLine(startpoint, endpoint, pen.getLineType());
+        //enum librecad > src > lib > engine > rs.h:642 > LineType
+
+        std::string path;
+        if ((RS2::DashLineTiny == lineType) | (RS2::DashLine2 == lineType)
+                | (RS2::DashLine == lineType) | (RS2::DashLineX2 == lineType)) {
+            path += svgPathMoveTo(convertToSvg(startpoint));
+            path += svgPathDashLine(startpoint, endpoint, pen.getLineType());
+        } else {
+            //use solid line for unsupported line type
+            path += svgPathMoveTo(convertToSvg(startpoint));
+            path += svgPathLineTo(convertToSvg(endpoint));
+        }
 
         xmlWriter->addElement("path", NAMESPACE_URI_SVG);        
         xmlWriter->addAttribute("id", QString::number(line->getId()).toStdString());
-        if (0.0 != pen.getWidth()){
+        if (RS2::Width00 != pen.getWidth()){
             xmlWriter->addAttribute("stroke-width", QString::number((pen.getWidth()/100.0)).toStdString());
          } else {
             xmlWriter->addAttribute("stroke-width", "0.2");     //! 0.2mme - default size of point in SVG exported
@@ -889,7 +895,7 @@ void LC_MakerCamSVG::writeImage(RS_Image* image)
     xmlWriter->closeElement();
 }
 
-std::string LC_MakerCamSVG::svgPathDashDotLine(RS_Vector startpoint, RS_Vector endpoint, RS2::LineType type, double scale ) const
+std::string LC_MakerCamSVG::svgPathDashLine(RS_Vector startpoint, RS_Vector endpoint, RS2::LineType type, double scale ) const
 {
     RS_DEBUG->print("RS_MakerCamSVG::svgPathDashDotLine: convert line to dot/dash path");
     double lineLengh = startpoint.distanceTo(endpoint);
@@ -902,6 +908,7 @@ std::string LC_MakerCamSVG::svgPathDashDotLine(RS_Vector startpoint, RS_Vector e
     double yStep = (endpoint.y-startpoint.y)/lineIter;
     RS_Vector lastPos;
     bool lastOpIsMove = true;
+
     for (int i=0; i<lineIter; i++){
         res = -1;
         switch (type){
