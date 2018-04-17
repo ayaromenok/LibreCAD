@@ -903,8 +903,13 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
 
     int patCount = -1;
     int lineScale = 1;
-    const int dotFactor = 1;
-    const int dashFactor = 3;
+    const int dotFactor     = 1;    // ..........
+    const int dashFactor    = 3;    // -- -- -- --
+    const int dashDotFactor = 4;    // --. --. --.
+    const int divideFactor  = 5;    // --.. --.. --.. --..
+    const int benterFactor  = 6;    // --- - --- - --- -
+    const int borderFactor  = 7;    // -- -- . -- -- . -- -- .
+
     for (int i=0; i<lineIter; i++){
         patCount = -1;
         switch(type){
@@ -919,9 +924,9 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
             case RS2::DashLineX2:{ lineScale = 8; patCount = i%(dashFactor*lineScale); break;}
 
 //            case RS2::DashDotLine:{ /* 4 iter */ patCount = i%4; break;}
-//            case RS2::DivideLine:{ /* 6 iter */ patCount = i%6; break;}
-//            case RS2::CenterLine:{ /* 7 iter */ patCount = i%7; break;}
-//            case RS2::BorderLine:{ /* 9 iter */ patCount = i%9; break;}
+//            case RS2::DivideLine:{ /* 5 iter */ patCount = i%5; break;}
+//            case RS2::CenterLine:{ /* 6 iter */ patCount = i%6; break;}
+//            case RS2::BorderLine:{ /* 7 iter */ patCount = i%7; break;}
         default:
             { lineScale = 8; patCount = i%(dotFactor*lineScale); break;}
         }
@@ -960,9 +965,9 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
         break;
     }
 //    case RS2::DashDotLine:{ /* 4 iter */ break;}
-//    case RS2::DivideLine:{ /* 6 iter */ break;}
-//    case RS2::CenterLine:{ /* 7 iter */ break;}
-//    case RS2::BorderLine:{ /* 9 iter */ break;}
+//    case RS2::DivideLine:{ /* 5 iter */ break;}
+//    case RS2::CenterLine:{ /* 6 iter */ break;}
+//    case RS2::BorderLine:{ /* 7 iter */ break;}
 
     default:{
         path += svgPathMoveTo(convertToSvg(*lastPos));
