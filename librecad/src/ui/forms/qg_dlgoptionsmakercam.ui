@@ -7,17 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>400</height>
+    <height>420</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>500</width>
-    <height>400</height>
+    <height>420</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Export as MakerCAM SVG</string>
+   <string>Export as CAM/plain SVG</string>
   </property>
   <layout class="QVBoxLayout">
    <property name="leftMargin">
@@ -94,6 +94,46 @@
          <widget class="QCheckBox" name="checkEllipsesToBeziers">
           <property name="text">
            <string>Approximate ellipses and ellipse arcs with cubic béziers</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignTop">
+    <widget class="QGroupBox" name="gbImages">
+     <property name="title">
+      <string>Images</string>
+     </property>
+     <layout class="QHBoxLayout">
+      <item>
+       <layout class="QVBoxLayout">
+        <item>
+         <widget class="QCheckBox" name="checkImages">
+          <property name="text">
+           <string>Raster Image export</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignTop">
+    <widget class="QGroupBox" name="gbDashLines">
+     <property name="title">
+      <string>Dash/Dot Lines</string>
+     </property>
+     <layout class="QHBoxLayout">
+      <item>
+       <layout class="QVBoxLayout">
+        <item>
+         <widget class="QCheckBox" name="checkDashDotLines">
+          <property name="text">
+           <string>Bake dash/dot lines to SVG path</string>
           </property>
          </widget>
         </item>

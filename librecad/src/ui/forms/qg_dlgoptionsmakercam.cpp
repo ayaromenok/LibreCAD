@@ -32,6 +32,8 @@ QG_DlgOptionsMakerCam::QG_DlgOptionsMakerCam(QWidget* parent, bool modal, Qt::Wi
     this->gbLayers->setToolTip(tr("MakerCAM as of November 2014 does not hide SVG content that has been set invisibe (\"display: none\" or \"visibility: hidden\")."));
     this->gbBlocks->setToolTip(tr("MakerCAM as of November 2014 cannot correctly deal with blocks, because it does not take into account the reference point in the <use>."));
     this->gbEllipses->setToolTip(tr("MakerCAM as of March 2015 cannot display ellipses and ellipse arcs correctly, when they are created using the <ellipse> tag  with a rotation in the <transform> attribute or as <path> using elliptic arc segments."));
+    this->gbImages->setToolTip(tr("Exported images can be useful in SVG editors (Inkscape, etc), but avoided in some CAM's."));
+    this->gbDashLines->setToolTip(tr("Many CAM's(MakerCAM, EleskCAM, LaserWeb) ignore dashed/doted line style, which can be useful in lasercut of plywood or for papercraft. "));
     loadSettings();
 }
 
@@ -59,6 +61,8 @@ void QG_DlgOptionsMakerCam::loadSettings() {
     updateCheckbox(checkConstructionLayers, "ExportConstructionLayers", 0);
     updateCheckbox(checkBlocksInline, "WriteBlocksInline", 1);
     updateCheckbox(checkEllipsesToBeziers, "ConvertEllipsesToBeziers", 1);
+    updateCheckbox(checkImages, "ExportImages", 0);
+    updateCheckbox(checkDashDotLines, "BakeDashDotLines", 0);
 
     RS_SETTINGS->endGroup();
 }
@@ -76,6 +80,8 @@ void QG_DlgOptionsMakerCam::saveSettings() {
     saveBoolean("ExportConstructionLayers", checkConstructionLayers);
     saveBoolean("WriteBlocksInline", checkBlocksInline);
     saveBoolean("ConvertEllipsesToBeziers", checkEllipsesToBeziers);
+    saveBoolean("ExportImages", checkImages);
+    saveBoolean("BakeDashDotLines", checkDashDotLines);
 
     RS_SETTINGS->endGroup();
 }
