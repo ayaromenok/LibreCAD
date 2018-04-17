@@ -1,24 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-This file is part of the LibreCAD project, a 2D CAD program
-
-Copyright (C) 2014 Christian Luginbühl (dinkel@pimprecords.com)
-
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
--->
 <ui version="4.0">
  <class>QG_DlgOptionsMakerCam</class>
  <widget class="QDialog" name="QG_DlgOptionsMakerCam">
@@ -40,33 +20,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
    <string>Export as MakerCAM SVG</string>
   </property>
   <layout class="QVBoxLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>11</number>
+   </property>
+   <property name="topMargin">
+    <number>11</number>
+   </property>
+   <property name="rightMargin">
+    <number>11</number>
+   </property>
+   <property name="bottomMargin">
     <number>11</number>
    </property>
    <item alignment="Qt::AlignTop">
-    <widget class="QGroupBox">
+    <widget class="QGroupBox" name="gbLayers">
      <property name="title">
       <string>Layers</string>
      </property>
      <layout class="QHBoxLayout">
       <item>
        <layout class="QVBoxLayout">
-        <item>
-         <widget class="QLabel" name="labelLayers">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>MakerCAM as of November 2014 does not hide SVG content that has been set invisibe (&quot;display: none;&quot; or &quot;visibility: hidden;&quot;).</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QCheckBox" name="checkInvisibleLayers">
           <property name="text">
@@ -87,29 +60,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </widget>
    </item>
    <item alignment="Qt::AlignTop">
-    <widget class="QGroupBox">
+    <widget class="QGroupBox" name="gbBlocks">
      <property name="title">
       <string>Blocks</string>
      </property>
      <layout class="QHBoxLayout">
       <item>
        <layout class="QVBoxLayout">
-        <item>
-         <widget class="QLabel" name="labelBlocks">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>MakerCAM as of November 2014 cannot correctly deal with blocks, because it does not take into account the reference point in the &lt;use&gt;.</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QCheckBox" name="checkBlocksInline">
           <property name="text">
@@ -126,29 +83,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </widget>
    </item>
    <item alignment="Qt::AlignTop">
-    <widget class="QGroupBox">
+    <widget class="QGroupBox" name="gbEllipses">
      <property name="title">
       <string>Ellipses / Ellipse arcs</string>
      </property>
      <layout class="QHBoxLayout">
       <item>
        <layout class="QVBoxLayout">
-        <item>
-         <widget class="QLabel" name="labelElipses">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>MakerCAM as of March 2015 cannot display ellipses and ellipse arcs correctly, when they are created using the &lt;ellipse&gt; tag  with a rotation in the &quot;transform&quot; attribute or as &lt;path&gt; using elliptic arc segments.</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QCheckBox" name="checkEllipsesToBeziers">
           <property name="text">

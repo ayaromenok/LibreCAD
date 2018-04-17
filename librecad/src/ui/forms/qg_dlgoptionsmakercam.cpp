@@ -29,7 +29,9 @@ QG_DlgOptionsMakerCam::QG_DlgOptionsMakerCam(QWidget* parent, bool modal, Qt::Wi
 {
     setModal(modal);
     setupUi(this);
-
+    this->gbLayers->setToolTip(tr("MakerCAM as of November 2014 does not hide SVG content that has been set invisibe (\"display: none\" or \"visibility: hidden\")."));
+    this->gbBlocks->setToolTip(tr("MakerCAM as of November 2014 cannot correctly deal with blocks, because it does not take into account the reference point in the <use>."));
+    this->gbEllipses->setToolTip(tr("MakerCAM as of March 2015 cannot display ellipses and ellipse arcs correctly, when they are created using the <ellipse> tag  with a rotation in the <transform> attribute or as <path> using elliptic arc segments."));
     loadSettings();
 }
 
