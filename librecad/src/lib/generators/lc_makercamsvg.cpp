@@ -67,11 +67,13 @@ LC_MakerCamSVG::LC_MakerCamSVG(LC_XMLWriterInterface* xmlWriter,
                                bool writeConstructionLayers,
 							   bool writeBlocksInline,
                                bool convertEllipsesToBeziers,
+                               bool exportImages,
                                bool convertLineTypes):
 	writeInvisibleLayers(writeInvisibleLayers)
   ,writeConstructionLayers(writeConstructionLayers)
   ,writeBlocksInline(writeBlocksInline)
   ,convertEllipsesToBeziers(convertEllipsesToBeziers)
+  ,exportImages(exportImages)
   ,convertLineTypes(convertLineTypes)
   ,xmlWriter(xmlWriter)
   ,offset(0.,0.)
@@ -346,7 +348,7 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
     RS_Pen pen = line->getPen();
     RS2::LineType lineType = pen.getLineType();
 
-    if ((RS2::SolidLine != lineType) | convertLineTypes ) {
+    if ((RS2::SolidLine != lineType) & convertLineTypes ) {
         //! only pattern predefined(i.e dash, dash(tiny), dash(small), dash(large)),
         //! but not exact proportions/absolute size
         //!
@@ -874,17 +876,18 @@ double LC_MakerCamSVG::calcAlpha(double angle) {
 void LC_MakerCamSVG::writeImage(RS_Image* image)
 {
     RS_DEBUG->print("RS_MakerCamSVG::writeImage: Writing image ...");
+    if (exportImages){
+        RS_Vector insertionPoint = convertToSvg(image->getInsertionPoint());
 
-    RS_Vector insertionPoint = convertToSvg(image->getInsertionPoint());
-
-    xmlWriter->addElement("image", NAMESPACE_URI_SVG);
+        xmlWriter->addElement("image", NAMESPACE_URI_SVG);
         xmlWriter->addAttribute("x", lengthXml(insertionPoint.x));
         xmlWriter->addAttribute("y", lengthXml(insertionPoint.y - image->getImageHeight()));
         xmlWriter->addAttribute("height", lengthXml(image->getImageHeight()));
         xmlWriter->addAttribute("width", lengthXml(image->getImageWidth()));
         xmlWriter->addAttribute("preserveAspectRatio", "none");  //height and width above used
         xmlWriter->addAttribute("xlink:href", image->getData().file.toStdString());
-    xmlWriter->closeElement();
+        xmlWriter->closeElement();
+    }
 }
 
 

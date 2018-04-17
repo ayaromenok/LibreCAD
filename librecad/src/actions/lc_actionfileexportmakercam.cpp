@@ -36,7 +36,7 @@
 
 LC_ActionFileExportMakerCam::LC_ActionFileExportMakerCam(RS_EntityContainer& container,
                                                          RS_GraphicView& graphicView)
-    : RS_ActionInterface("Export as MakerCAM SVG...", container, graphicView) {}
+    : RS_ActionInterface("Export as CAM/plain SVG...", container, graphicView) {}
 
 
 void LC_ActionFileExportMakerCam::init(int status) {
@@ -67,7 +67,9 @@ void LC_ActionFileExportMakerCam::trigger() {
                                                                (bool)RS_SETTINGS->readNumEntry("/ExportInvisibleLayers"),
                                                                (bool)RS_SETTINGS->readNumEntry("/ExportConstructionLayers"),
                                                                (bool)RS_SETTINGS->readNumEntry("/WriteBlocksInline"),
-															   (bool)RS_SETTINGS->readNumEntry("/ConvertEllipsesToBeziers"))
+                                                               (bool)RS_SETTINGS->readNumEntry("/ConvertEllipsesToBeziers"),
+                                                               (bool)RS_SETTINGS->readNumEntry("/ExportImages"),
+                                                               (bool)RS_SETTINGS->readNumEntry("/BakeDashDotLines"))
 														  );
 
                 RS_SETTINGS->endGroup();
