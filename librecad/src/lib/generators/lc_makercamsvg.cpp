@@ -907,26 +907,43 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
     const int dashFactor    = 3;    // -- -- -- --
     const int dashDotFactor = 4;    // --. --. --.
     const int divideFactor  = 5;    // --.. --.. --.. --..
-    const int benterFactor  = 6;    // --- - --- - --- -
+    const int centerFactor  = 6;    // --- - --- - --- -
     const int borderFactor  = 7;    // -- -- . -- -- . -- -- .
 
     for (int i=0; i<lineIter; i++){
         patCount = -1;
+
         switch(type){
-            case RS2::DotLineTiny:{ lineScale = 1; patCount = i%(dotFactor*lineScale); break;}
-            case RS2::DotLine2:{ lineScale = 2; patCount = i%(dotFactor*lineScale); break;}
-            case RS2::DotLine:{ lineScale = 4; patCount = i%(dotFactor*lineScale); break;}
-            case RS2::DotLineX2:{ lineScale = 8; patCount = i%(dotFactor*lineScale); break;}
+        case RS2::DotLineTiny:{ lineScale = 1; patCount = i%(dotFactor*lineScale); break;}
+        case RS2::DotLine2:{ lineScale = 2; patCount = i%(dotFactor*lineScale); break;}
+        case RS2::DotLine:{ lineScale = 4; patCount = i%(dotFactor*lineScale); break;}
+        case RS2::DotLineX2:{ lineScale = 8; patCount = i%(dotFactor*lineScale); break;}
 
-            case RS2::DashLineTiny:{ lineScale = 1; patCount = i%(dashFactor*lineScale); break;}
-            case RS2::DashLine2:{ lineScale = 2; patCount = i%(dashFactor*lineScale); break;}
-            case RS2::DashLine:{ lineScale = 4; patCount = i%(dashFactor*lineScale); break;}
-            case RS2::DashLineX2:{ lineScale = 8; patCount = i%(dashFactor*lineScale); break;}
+        case RS2::DashLineTiny:{ lineScale = 1; patCount = i%(dashFactor*lineScale); break;}
+        case RS2::DashLine2:{ lineScale = 2; patCount = i%(dashFactor*lineScale); break;}
+        case RS2::DashLine:{ lineScale = 4; patCount = i%(dashFactor*lineScale); break;}
+        case RS2::DashLineX2:{ lineScale = 8; patCount = i%(dashFactor*lineScale); break;}
 
-//            case RS2::DashDotLine:{ /* 4 iter */ patCount = i%4; break;}
-//            case RS2::DivideLine:{ /* 5 iter */ patCount = i%5; break;}
-//            case RS2::CenterLine:{ /* 6 iter */ patCount = i%6; break;}
-//            case RS2::BorderLine:{ /* 7 iter */ patCount = i%7; break;}
+        case RS2::DashDotLineTiny:{ lineScale = 1; patCount = i%(dashDotFactor*lineScale); break;}
+        case RS2::DashDotLine2:{ lineScale = 2; patCount = i%(dashDotFactor*lineScale); break;}
+        case RS2::DashDotLine:{ lineScale = 4; patCount = i%(dashDotFactor*lineScale); break;}
+        case RS2::DashDotLineX2:{ lineScale = 8; patCount = i%(dashDotFactor*lineScale); break;}
+
+        case RS2::DivideLineTiny:{ lineScale = 1; patCount = i%(divideFactor*lineScale); break;}
+        case RS2::DivideLine2:{ lineScale = 2; patCount = i%(divideFactor*lineScale); break;}
+        case RS2::DivideLine:{ lineScale = 4; patCount = i%(divideFactor*lineScale); break;}
+        case RS2::DivideLineX2:{ lineScale = 8; patCount = i%(divideFactor*lineScale); break;}
+
+        case RS2::CenterLineTiny:{ lineScale = 1; patCount = i%(centerFactor*lineScale); break;}
+        case RS2::CenterLine2:{ lineScale = 2; patCount = i%(centerFactor*lineScale); break;}
+        case RS2::CenterLine:{ lineScale = 4; patCount = i%(centerFactor*lineScale); break;}
+        case RS2::CenterLineX2:{ lineScale = 8; patCount = i%(centerFactor*lineScale); break;}
+
+        case RS2::BorderLineTiny:{ lineScale = 1; patCount = i%(borderFactor*lineScale); break;}
+        case RS2::BorderLine2:{ lineScale = 2; patCount = i%(borderFactor*lineScale); break;}
+        case RS2::BorderLine:{ lineScale = 4; patCount = i%(borderFactor*lineScale); break;}
+        case RS2::BorderLineX2:{ lineScale = 8; patCount = i%(borderFactor*lineScale); break;}
+
         default:
             { lineScale = 8; patCount = i%(dotFactor*lineScale); break;}
         }
@@ -944,6 +961,7 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
 std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, RS2::LineType type, int lineScale, int patCount) const
 {
     std::string path;
+
     switch(type){
     case RS2::DotLineTiny:
     case RS2::DotLine2:
@@ -954,6 +972,7 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
         *lastPos += step*lineScale;
         break;
     }
+
     case RS2::DashLineTiny:
     case RS2::DashLine2:
     case RS2::DashLine:
@@ -964,12 +983,73 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
         *lastPos += step*lineScale;
         break;
     }
-//    case RS2::DashDotLine:{ /* 4 iter */ break;}
-//    case RS2::DivideLine:{ /* 5 iter */ break;}
-//    case RS2::CenterLine:{ /* 6 iter */ break;}
-//    case RS2::BorderLine:{ /* 7 iter */ break;}
+
+    case RS2::DashDotLineTiny:
+    case RS2::DashDotLine2:
+    case RS2::DashDotLine:
+    case RS2::DashDotLineX2:{
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        *lastPos += (step*lineScale*2);
+        path += svgPathLineTo(convertToSvg(*lastPos));
+        *lastPos += step*lineScale;
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
+        *lastPos += step*lineScale;
+        break;
+    }
+
+    case RS2::DivideLineTiny:
+    case RS2::DivideLine2:
+    case RS2::DivideLine:
+    case RS2::DivideLineX2: {
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        *lastPos += (step*lineScale*2);
+        path += svgPathLineTo(convertToSvg(*lastPos));
+        *lastPos += step*lineScale;
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
+        *lastPos += step*lineScale;
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
+        *lastPos += step*lineScale;
+        break;
+    }
+
+    case RS2::CenterLineTiny:
+    case RS2::CenterLine2:
+    case RS2::CenterLine:
+    case RS2::CenterLineX2:{
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        *lastPos += (step*lineScale*2);
+        path += svgPathLineTo(convertToSvg(*lastPos));
+        *lastPos += step*lineScale;
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        *lastPos += (step*lineScale);
+        path += svgPathLineTo(convertToSvg(*lastPos));
+        *lastPos += step*lineScale;
+        break;
+    }
+
+    case RS2::BorderLineTiny:
+    case RS2::BorderLine2:
+    case RS2::BorderLine:
+    case RS2::BorderLineX2:{
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        *lastPos += (step*lineScale*2);
+        path += svgPathLineTo(convertToSvg(*lastPos));
+        *lastPos += step*lineScale;
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        *lastPos += (step*lineScale*2);
+        path += svgPathLineTo(convertToSvg(*lastPos));
+        *lastPos += step*lineScale;
+        path += svgPathMoveTo(convertToSvg(*lastPos));
+        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
+        *lastPos += step*lineScale;
+        break;
+    }
 
     default:{
+        //use a solid path to any unsupported line
         path += svgPathMoveTo(convertToSvg(*lastPos));
         *lastPos += step*lineScale;
         path += svgPathLineTo(convertToSvg(*lastPos));
