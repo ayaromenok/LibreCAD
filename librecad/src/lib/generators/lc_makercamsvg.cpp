@@ -967,9 +967,7 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
     case RS2::DotLine2:
     case RS2::DotLine:
     case RS2::DotLineX2:{
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
-        *lastPos += step*lineScale;
+        path += getPointSegment(lastPos, step, lineScale);
         break;
     }
 
@@ -977,10 +975,7 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
     case RS2::DashLine2:
     case RS2::DashLine:
     case RS2::DashLineX2:{
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        *lastPos += (step*lineScale*2);
-        path += svgPathLineTo(convertToSvg(*lastPos));
-        *lastPos += step*lineScale;
+        path += getLineSegment(lastPos, step, lineScale, true);
         break;
     }
 
@@ -988,13 +983,8 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
     case RS2::DashDotLine2:
     case RS2::DashDotLine:
     case RS2::DashDotLineX2:{
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        *lastPos += (step*lineScale*2);
-        path += svgPathLineTo(convertToSvg(*lastPos));
-        *lastPos += step*lineScale;
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
-        *lastPos += step*lineScale;
+        path += getLineSegment(lastPos, step, lineScale, true);
+        path += getPointSegment(lastPos, step, lineScale);
         break;
     }
 
@@ -1002,16 +992,9 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
     case RS2::DivideLine2:
     case RS2::DivideLine:
     case RS2::DivideLineX2: {
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        *lastPos += (step*lineScale*2);
-        path += svgPathLineTo(convertToSvg(*lastPos));
-        *lastPos += step*lineScale;
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
-        *lastPos += step*lineScale;
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
-        *lastPos += step*lineScale;
+        path += getLineSegment(lastPos, step, lineScale, true);
+        path += getPointSegment(lastPos, step, lineScale);
+        path += getPointSegment(lastPos, step, lineScale);
         break;
     }
 
@@ -1019,14 +1002,8 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
     case RS2::CenterLine2:
     case RS2::CenterLine:
     case RS2::CenterLineX2:{
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        *lastPos += (step*lineScale*2);
-        path += svgPathLineTo(convertToSvg(*lastPos));
-        *lastPos += step*lineScale;
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        *lastPos += (step*lineScale);
-        path += svgPathLineTo(convertToSvg(*lastPos));
-        *lastPos += step*lineScale;
+        path += getLineSegment(lastPos, step, lineScale, true);
+        path += getLineSegment(lastPos, step, lineScale, false);
         break;
     }
 
@@ -1034,27 +1011,41 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
     case RS2::BorderLine2:
     case RS2::BorderLine:
     case RS2::BorderLineX2:{
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        *lastPos += (step*lineScale*2);
-        path += svgPathLineTo(convertToSvg(*lastPos));
-        *lastPos += step*lineScale;
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        *lastPos += (step*lineScale*2);
-        path += svgPathLineTo(convertToSvg(*lastPos));
-        *lastPos += step*lineScale;
-        path += svgPathMoveTo(convertToSvg(*lastPos));
-        path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
-        *lastPos += step*lineScale;
+        path += getLineSegment(lastPos, step, lineScale, true);
+        path += getLineSegment(lastPos, step, lineScale, true);
+        path += getPointSegment(lastPos, step, lineScale);
         break;
     }
 
     default:{
-        //use a solid path to any unsupported line
+        RS_DEBUG->print(RS_Debug::D_WARNING,"RS_MakerCamSVG::getLinePattern: unsupported line type %d\n", type);
         path += svgPathMoveTo(convertToSvg(*lastPos));
         *lastPos += step*lineScale;
         path += svgPathLineTo(convertToSvg(*lastPos));
         break;
     }
     }
+    return path;
+}
+
+std::string LC_MakerCamSVG::getPointSegment(RS_Vector *lastPos, RS_Vector step, int lineScale) const
+{
+    std::string path;
+    path += svgPathMoveTo(convertToSvg(*lastPos));
+    path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
+    *lastPos += step*lineScale;
+    return path;
+}
+
+std::string LC_MakerCamSVG::getLineSegment(RS_Vector *lastPos, RS_Vector step, int lineScale, bool x2)const
+{
+    std::string path;
+    path += svgPathMoveTo(convertToSvg(*lastPos));
+    if (x2)
+        *lastPos += (step*lineScale*2);
+    else
+        *lastPos += (step*lineScale);
+    path += svgPathLineTo(convertToSvg(*lastPos));
+    *lastPos += step*lineScale;
     return path;
 }
