@@ -61,7 +61,9 @@ public:
                    bool writeBlocksInline = false,
                    bool convertEllipsesToBeziers = false,
                    bool exportImages = false,
-                   bool convertLineTypes = false);
+                   bool convertLineTypes = false,
+                   double defaultElementWidth = 1.0,
+                   double defaultDashLinePatternLength = 10.0);
 
 	~LC_MakerCamSVG() = default;
 
@@ -124,14 +126,16 @@ private:
 
     static double calcAlpha(double angle);
 
+    std::unique_ptr<LC_XMLWriterInterface> xmlWriter;
+
     bool writeInvisibleLayers;
     bool writeConstructionLayers;
     bool writeBlocksInline;
     bool convertEllipsesToBeziers;
-    bool convertLineTypes;
     bool exportImages;
-
-    std::unique_ptr<LC_XMLWriterInterface> xmlWriter;
+    bool convertLineTypes;
+    double defaultElementWidth;
+    double defaultDashLinePatternLength;
 
     RS_Vector min;
     RS_Vector max;
@@ -143,6 +147,7 @@ private:
      * @brief lengthFactor factor from current unit to svg length units
      */
     double lengthFactor;
+
 };
 
 #endif

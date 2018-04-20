@@ -68,17 +68,21 @@ LC_MakerCamSVG::LC_MakerCamSVG(LC_XMLWriterInterface* xmlWriter,
 							   bool writeBlocksInline,
                                bool convertEllipsesToBeziers,
                                bool exportImages,
-                               bool convertLineTypes):
-	writeInvisibleLayers(writeInvisibleLayers)
+                               bool convertLineTypes,
+                               double defaultElementWidth,
+                               double defaultDashLinePatternLength):
+    writeInvisibleLayers(writeInvisibleLayers)
   ,writeConstructionLayers(writeConstructionLayers)
   ,writeBlocksInline(writeBlocksInline)
   ,convertEllipsesToBeziers(convertEllipsesToBeziers)
   ,exportImages(exportImages)
   ,convertLineTypes(convertLineTypes)
   ,xmlWriter(xmlWriter)
-  ,offset(0.,0.)
+  ,defaultElementWidth(defaultElementWidth)
+  ,defaultDashLinePatternLength(defaultDashLinePatternLength)
 {
     RS_DEBUG->print("RS_MakerCamSVG::RS_MakerCamSVG()");
+    offset = RS_Vector(0.,0.);
 }
 
 bool LC_MakerCamSVG::generate(RS_Graphic* graphic) {
@@ -205,7 +209,7 @@ void LC_MakerCamSVG::writeLayer(RS_Document* document, RS_Layer* layer) {
 
             xmlWriter->addAttribute("fill", "none");
             xmlWriter->addAttribute("stroke", "black");
-            xmlWriter->addAttribute("stroke-width", "1");
+            xmlWriter->addAttribute("stroke-width", QString::number(defaultElementWidth).toStdString());
 
             writeEntities(document, layer);
 
@@ -362,7 +366,7 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
         if (RS2::Width00 != pen.getWidth()){
             xmlWriter->addAttribute("stroke-width", QString::number((pen.getWidth()/100.0)).toStdString());
          } else {
-            xmlWriter->addAttribute("stroke-width", "0.2");     //! 0.2mme - default size of point in SVG exported
+            xmlWriter->addAttribute("stroke-width", QString::number(defaultElementWidth).toStdString());     //! 0.2mme - default size of point in SVG exported
         }
         xmlWriter->addAttribute("d", path);
         xmlWriter->closeElement();
@@ -889,7 +893,8 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
     std::string path;
 
     double lineLengh = startpoint.distanceTo(endpoint);
-    double lineStep = 1.0; //need to setup externaly form export dialog
+
+    double lineStep = defaultDashLinePatternLength/7.0;
 
     int lineIter = round(lineLengh*scale/lineStep); //step 2mm
     RS_Vector step((endpoint.x-startpoint.x)/lineIter,(endpoint.y-startpoint.y)/lineIter);
