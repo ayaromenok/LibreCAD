@@ -349,19 +349,10 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
     RS2::LineType lineType = pen.getLineType();
 
     if ((RS2::SolidLine != lineType) & convertLineTypes ) {
-        //! only pattern predefined(i.e dash, dash(tiny), dash(small), dash(large)),
-        //! but not exact proportions/absolute size
-        //!
-        //! \todo de escalate debug info level
-        RS_DEBUG->print(RS_Debug::D_WARNING,"RS_MakerCamSVG::writeLine: convert to Path ...%d",lineType);
-
+        RS_DEBUG->print("RS_MakerCamSVG::writeLine: write baked line as path");
         double height = max.y - min.y;
         startpoint.set(startpoint.x, height-startpoint.y);
         endpoint.set(endpoint.x, height-endpoint.y);
-
-        // dot(point) implemented as circle with radius 0.1,
-        // so can be line segment with 0.2 lengths
-        //enum librecad > src > lib > engine > rs.h:642 > LineType
 
         std::string path;
         path += svgPathAnyLineType(startpoint, endpoint, pen.getLineType());
@@ -377,7 +368,7 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
         xmlWriter->closeElement();
     }
     else {
-        RS_DEBUG->print("RS_MakerCamSVG::writeLine: write standard line ...");
+        RS_DEBUG->print("RS_MakerCamSVG::writeLine: write standard line ");
         xmlWriter->addElement("line", NAMESPACE_URI_SVG);
 
         xmlWriter->addAttribute("x1", lengthXml(startpoint.x));

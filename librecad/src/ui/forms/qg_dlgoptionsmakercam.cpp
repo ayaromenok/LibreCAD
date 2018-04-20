@@ -34,6 +34,8 @@ QG_DlgOptionsMakerCam::QG_DlgOptionsMakerCam(QWidget* parent, bool modal, Qt::Wi
     this->gbEllipses->setToolTip(tr("MakerCAM as of March 2015 cannot display ellipses and ellipse arcs correctly, when they are created using the <ellipse> tag  with a rotation in the <transform> attribute or as <path> using elliptic arc segments."));
     this->gbImages->setToolTip(tr("Exported images can be useful in SVG editors (Inkscape, etc), but avoided in some CAM's."));
     this->gbDashLines->setToolTip(tr("Many CAM's(MakerCAM, EleskCAM, LaserWeb) ignore dashed/doted line style, which can be useful in lasercut of plywood or for papercraft. "));
+    this->lbDefaultElementWidth->setToolTip("tr(Default width of elements can affect some CAM's/SVG Editors, but ignored by other)");
+    this->lbDashLinePatternLength->setToolTip(tr("Length of line pattern related to zoom, so default value required for baking"));
     loadSettings();
 }
 
@@ -63,13 +65,19 @@ void QG_DlgOptionsMakerCam::loadSettings() {
     updateCheckbox(checkEllipsesToBeziers, "ConvertEllipsesToBeziers", 1);
     updateCheckbox(checkImages, "ExportImages", 0);
     updateCheckbox(checkDashDotLines, "BakeDashDotLines", 0);
-
+    updateDoubleSpinBox(dSpinBoxDefaultElementWidth, "DefaultElementWidth", 1.0);
+    updateDoubleSpinBox(dSpinBoxDashLinePatternLength, "DefaultDashLinePatternLength", 10.0);
     RS_SETTINGS->endGroup();
 }
 
 void QG_DlgOptionsMakerCam::updateCheckbox(QCheckBox* checkbox, QString name, int defaultValue) {
 
     checkbox->setChecked(RS_SETTINGS->readNumEntry("/" + name, defaultValue) ? true : false);
+}
+
+void QG_DlgOptionsMakerCam::updateDoubleSpinBox(QDoubleSpinBox* dSpinBox, QString name, double defaultValue) {
+
+    dSpinBox->setValue(RS_SETTINGS->readEntry("/" + name, QString::number(defaultValue)).toDouble());
 }
 
 void QG_DlgOptionsMakerCam::saveSettings() {
@@ -82,6 +90,8 @@ void QG_DlgOptionsMakerCam::saveSettings() {
     saveBoolean("ConvertEllipsesToBeziers", checkEllipsesToBeziers);
     saveBoolean("ExportImages", checkImages);
     saveBoolean("BakeDashDotLines", checkDashDotLines);
+    saveDouble("DefaultElementWidth", dSpinBoxDefaultElementWidth);
+    saveDouble("DefaultDashLinePatternLength", dSpinBoxDashLinePatternLength);
 
     RS_SETTINGS->endGroup();
 }
@@ -89,4 +99,8 @@ void QG_DlgOptionsMakerCam::saveSettings() {
 void QG_DlgOptionsMakerCam::saveBoolean(QString name, QCheckBox* checkbox) {
 
     RS_SETTINGS->writeEntry("/" + name, checkbox->isChecked() ? 1 : 0);
+}
+
+void QG_DlgOptionsMakerCam::saveDouble(QString name, QDoubleSpinBox* dSpinBox) {
+    RS_SETTINGS->writeEntry("/" + name, dSpinBox->value());
 }
