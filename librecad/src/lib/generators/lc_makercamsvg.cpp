@@ -71,16 +71,17 @@ LC_MakerCamSVG::LC_MakerCamSVG(LC_XMLWriterInterface* xmlWriter,
                                bool convertLineTypes,
                                double defaultElementWidth,
                                double defaultDashLinePatternLength):
-    writeInvisibleLayers(writeInvisibleLayers)
+  xmlWriter(xmlWriter)
+  ,writeInvisibleLayers(writeInvisibleLayers)
   ,writeConstructionLayers(writeConstructionLayers)
   ,writeBlocksInline(writeBlocksInline)
   ,convertEllipsesToBeziers(convertEllipsesToBeziers)
   ,exportImages(exportImages)
   ,convertLineTypes(convertLineTypes)
-  ,xmlWriter(xmlWriter)
-  ,offset(0.,0.)
   ,defaultElementWidth(defaultElementWidth)
   ,defaultDashLinePatternLength(defaultDashLinePatternLength)
+
+  ,offset(0.,0.)
 {
     RS_DEBUG->print("RS_MakerCamSVG::RS_MakerCamSVG()");
 }
@@ -366,7 +367,7 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
         if (RS2::Width00 != pen.getWidth()){
             xmlWriter->addAttribute("stroke-width", QString::number((pen.getWidth()/100.0)).toStdString());
          } else {
-            xmlWriter->addAttribute("stroke-width", QString::number(defaultElementWidth).toStdString());     //! 0.2mme - default size of point in SVG exported
+            xmlWriter->addAttribute("stroke-width", QString::number(defaultElementWidth).toStdString());
         }
         xmlWriter->addAttribute("d", path);
         xmlWriter->closeElement();
@@ -886,7 +887,7 @@ void LC_MakerCamSVG::writeImage(RS_Image* image)
 }
 
 
-std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector endpoint, RS2::LineType type, double scale ) const
+std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector endpoint, RS2::LineType type) const
 {
     RS_DEBUG->print("RS_MakerCamSVG::svgPathUniLineType: convert line to dot/dash path");
 
@@ -894,9 +895,9 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
 
     double lineLengh = startpoint.distanceTo(endpoint);
 
-    double lineStep = defaultDashLinePatternLength/7.0;
+    double lineStep = defaultDashLinePatternLength/7.0; //max pattern length - border line type
 
-    int lineIter = round(lineLengh*scale/lineStep); //step 2mm
+    int lineIter = round(lineLengh/lineStep);
     RS_Vector step((endpoint.x-startpoint.x)/lineIter,(endpoint.y-startpoint.y)/lineIter);
     RS_Vector lastPos(startpoint.x, startpoint.y);
 
