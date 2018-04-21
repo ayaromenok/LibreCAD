@@ -117,7 +117,7 @@ private:
     std::string svgPathArc(RS_Arc* arc) const;
     std::string svgPathArc(RS_Vector point, double radius_x, double radius_y, double x_axis_rotation, bool large_arc_flag, bool sweep_flag) const;
     std::string svgPathAnyLineType(RS_Vector startpoint, RS_Vector endpoint, RS2::LineType type) const;
-    std::string getLinePattern(RS_Vector *lastPos, RS_Vector step, RS2::LineType type, double lineScale, int patCount = 0.0) const;
+    std::string getLinePattern(RS_Vector *lastPos, RS_Vector step, RS2::LineType type, double lineScale) const;
     std::string getPointSegment(RS_Vector *lastPos, RS_Vector step, double lineScale)const;
     std::string getLineSegment(RS_Vector *lastPos, RS_Vector step, double lineScale, bool x2 = false)const;
 

@@ -952,7 +952,7 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
     return path;
 }
 
-std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, RS2::LineType type, double lineScale, int patCount) const
+std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, RS2::LineType type, double lineScale) const
 {
     std::string path;
 
