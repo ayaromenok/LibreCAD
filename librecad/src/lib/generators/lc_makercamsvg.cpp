@@ -355,9 +355,6 @@ void LC_MakerCamSVG::writeLine(RS_Line* line) {
 
     if ((RS2::SolidLine != lineType) & convertLineTypes ) {
         RS_DEBUG->print("RS_MakerCamSVG::writeLine: write baked line as path");
-        double height = max.y - min.y;
-        startpoint.set(startpoint.x, height-startpoint.y);
-        endpoint.set(endpoint.x, height-endpoint.y);
 
         std::string path;
         path += svgPathAnyLineType(startpoint, endpoint, pen.getLineType());
@@ -891,6 +888,13 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
 {
     RS_DEBUG->print("RS_MakerCamSVG::svgPathUniLineType: convert line to dot/dash path");
 
+    const int dotFactor     = 1;    // ..........
+    const int dashFactor    = 3;    // -- -- -- --
+    const int dashDotFactor = 4;    // --. --. --.
+    const int divideFactor  = 5;    // --.. --.. --.. --..
+    const int centerFactor  = 6;    // --- - --- - --- -
+    const int borderFactor  = 7;    // -- -- . -- -- . -- -- .
+
     std::string path;
 
     double lineLengh = startpoint.distanceTo(endpoint);
@@ -902,13 +906,7 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
     RS_Vector lastPos(startpoint.x, startpoint.y);
 
     int patCount = -1;
-    int lineScale = 1;
-    const int dotFactor     = 1;    // ..........
-    const int dashFactor    = 3;    // -- -- -- --
-    const int dashDotFactor = 4;    // --. --. --.
-    const int divideFactor  = 5;    // --.. --.. --.. --..
-    const int centerFactor  = 6;    // --- - --- - --- -
-    const int borderFactor  = 7;    // -- -- . -- -- . -- -- .
+    int lineScale = 1;    
 
     for (int i=0; i<lineIter; i++){
         patCount = -1;
@@ -1031,8 +1029,8 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
 std::string LC_MakerCamSVG::getPointSegment(RS_Vector *lastPos, RS_Vector step, int lineScale) const
 {
     std::string path;
-    path += svgPathMoveTo(convertToSvg(*lastPos));
-    path += svgPathLineTo(convertToSvg(*lastPos+RS_Vector(0.2,0.2)));
+    path += svgPathMoveTo(*lastPos);
+    path += svgPathLineTo(*lastPos+RS_Vector(0.2,0.2));
     *lastPos += step*lineScale;
     return path;
 }
@@ -1040,12 +1038,12 @@ std::string LC_MakerCamSVG::getPointSegment(RS_Vector *lastPos, RS_Vector step, 
 std::string LC_MakerCamSVG::getLineSegment(RS_Vector *lastPos, RS_Vector step, int lineScale, bool x2)const
 {
     std::string path;
-    path += svgPathMoveTo(convertToSvg(*lastPos));
+    path += svgPathMoveTo(*lastPos);
     if (x2)
         *lastPos += (step*lineScale*2);
     else
         *lastPos += (step*lineScale);
-    path += svgPathLineTo(convertToSvg(*lastPos));
+    path += svgPathLineTo(*lastPos);
     *lastPos += step*lineScale;
     return path;
 }
