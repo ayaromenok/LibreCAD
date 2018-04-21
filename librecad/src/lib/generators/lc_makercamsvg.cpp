@@ -892,71 +892,67 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
     const int dashFactor    = 3;    // -- -- -- --
     const int dashDotFactor = 4;    // --. --. --.
     const int divideFactor  = 5;    // --.. --.. --.. --..
-    const int centerFactor  = 6;    // --- - --- - --- -
+    const int centerFactor  = 5;    // -- - -- - -- -
     const int borderFactor  = 7;    // -- -- . -- -- . -- -- .
 
+    const double lineScaleTiny  = 0.25;
+    const double lineScale2     = 0.5;
+    const double lineScaleOne   = 1.0;
+    const double lineScaleX2    = 2.0;
+
     std::string path;
+    double lineScale;
+    double lineFactor;
 
     double lineLengh = startpoint.distanceTo(endpoint);
+    switch(type){
 
-    double lineStep = defaultDashLinePatternLength/7.0; //max pattern length - border line type
+    case RS2::DotLineTiny:{ lineScale = lineScaleTiny; lineFactor = dotFactor; break;}
+    case RS2::DotLine2:{ lineScale = lineScale2; lineFactor = dotFactor; break;}
+    case RS2::DotLine:{ lineScale = lineScaleOne;  lineFactor = dotFactor; break;}
+    case RS2::DotLineX2:{ lineScale = lineScaleX2; lineFactor = dotFactor; break;}
 
-    int lineIter = round(lineLengh/lineStep);
-    RS_Vector step((endpoint.x-startpoint.x)/lineIter,(endpoint.y-startpoint.y)/lineIter);
+    case RS2::DashLineTiny:{ lineScale = lineScaleTiny; lineFactor = dashFactor; break;}
+    case RS2::DashLine2:{ lineScale = lineScale2; lineFactor = dashFactor; break;}
+    case RS2::DashLine:{ lineScale = lineScaleOne;  lineFactor = dashFactor; break;}
+    case RS2::DashLineX2:{ lineScale = lineScaleX2; lineFactor = dashFactor; break;}
+
+    case RS2::DashDotLineTiny:{ lineScale = lineScaleTiny; lineFactor = dashDotFactor; break;}
+    case RS2::DashDotLine2:{ lineScale = lineScale2; lineFactor = dashDotFactor; break;}
+    case RS2::DashDotLine:{ lineScale = lineScaleOne;  lineFactor = dashDotFactor; break;}
+    case RS2::DashDotLineX2:{ lineScale = lineScaleX2; lineFactor = dashDotFactor; break;}
+
+    case RS2::DivideLineTiny:{ lineScale = lineScaleTiny; lineFactor = divideFactor; break;}
+    case RS2::DivideLine2:{ lineScale = lineScale2; lineFactor = divideFactor; break;}
+    case RS2::DivideLine:{ lineScale = lineScaleOne;  lineFactor = divideFactor; break;}
+    case RS2::DivideLineX2:{ lineScale = lineScaleX2; lineFactor = divideFactor; break;}
+
+    case RS2::CenterLineTiny:{ lineScale = lineScaleTiny; lineFactor = centerFactor; break;}
+    case RS2::CenterLine2:{ lineScale = lineScale2; lineFactor = centerFactor; break;}
+    case RS2::CenterLine:{ lineScale = lineScaleOne;  lineFactor = centerFactor; break;}
+    case RS2::CenterLineX2:{ lineScale = lineScaleX2; lineFactor = centerFactor; break;}
+
+    case RS2::BorderLineTiny:{ lineScale = lineScaleTiny; lineFactor = borderFactor; break;}
+    case RS2::BorderLine2:{ lineScale = lineScale2; lineFactor = borderFactor; break;}
+    case RS2::BorderLine:{ lineScale = lineScaleOne;  lineFactor = borderFactor; break;}
+    case RS2::BorderLineX2:{ lineScale = lineScaleX2; lineFactor = borderFactor; break;}
+    default: { lineScale = lineScaleOne; lineFactor = dotFactor; break;}
+    }
+
+    double lineStep = lineScale*defaultDashLinePatternLength*lineFactor;
+    int numOfIter = round(lineLengh/lineStep);
+
+    RS_Vector step((endpoint.x-startpoint.x)/numOfIter,(endpoint.y-startpoint.y)/numOfIter);
     RS_Vector lastPos(startpoint.x, startpoint.y);
 
-    int patCount = -1;
-    int lineScale = 1;    
-
-    for (int i=0; i<lineIter; i++){
-        patCount = -1;
-
-        switch(type){
-        case RS2::DotLineTiny:{ lineScale = 1; patCount = i%(dotFactor*lineScale); break;}
-        case RS2::DotLine2:{ lineScale = 2; patCount = i%(dotFactor*lineScale); break;}
-        case RS2::DotLine:{ lineScale = 4; patCount = i%(dotFactor*lineScale); break;}
-        case RS2::DotLineX2:{ lineScale = 8; patCount = i%(dotFactor*lineScale); break;}
-
-        case RS2::DashLineTiny:{ lineScale = 1; patCount = i%(dashFactor*lineScale); break;}
-        case RS2::DashLine2:{ lineScale = 2; patCount = i%(dashFactor*lineScale); break;}
-        case RS2::DashLine:{ lineScale = 4; patCount = i%(dashFactor*lineScale); break;}
-        case RS2::DashLineX2:{ lineScale = 8; patCount = i%(dashFactor*lineScale); break;}
-
-        case RS2::DashDotLineTiny:{ lineScale = 1; patCount = i%(dashDotFactor*lineScale); break;}
-        case RS2::DashDotLine2:{ lineScale = 2; patCount = i%(dashDotFactor*lineScale); break;}
-        case RS2::DashDotLine:{ lineScale = 4; patCount = i%(dashDotFactor*lineScale); break;}
-        case RS2::DashDotLineX2:{ lineScale = 8; patCount = i%(dashDotFactor*lineScale); break;}
-
-        case RS2::DivideLineTiny:{ lineScale = 1; patCount = i%(divideFactor*lineScale); break;}
-        case RS2::DivideLine2:{ lineScale = 2; patCount = i%(divideFactor*lineScale); break;}
-        case RS2::DivideLine:{ lineScale = 4; patCount = i%(divideFactor*lineScale); break;}
-        case RS2::DivideLineX2:{ lineScale = 8; patCount = i%(divideFactor*lineScale); break;}
-
-        case RS2::CenterLineTiny:{ lineScale = 1; patCount = i%(centerFactor*lineScale); break;}
-        case RS2::CenterLine2:{ lineScale = 2; patCount = i%(centerFactor*lineScale); break;}
-        case RS2::CenterLine:{ lineScale = 4; patCount = i%(centerFactor*lineScale); break;}
-        case RS2::CenterLineX2:{ lineScale = 8; patCount = i%(centerFactor*lineScale); break;}
-
-        case RS2::BorderLineTiny:{ lineScale = 1; patCount = i%(borderFactor*lineScale); break;}
-        case RS2::BorderLine2:{ lineScale = 2; patCount = i%(borderFactor*lineScale); break;}
-        case RS2::BorderLine:{ lineScale = 4; patCount = i%(borderFactor*lineScale); break;}
-        case RS2::BorderLineX2:{ lineScale = 8; patCount = i%(borderFactor*lineScale); break;}
-
-        default:
-            { lineScale = 8; patCount = i%(dotFactor*lineScale); break;}
-        }
-        if (0 == patCount){
-            path += getLinePattern(&lastPos, step, type, lineScale);
-        }
+    for (int i=0; i< numOfIter; i++){
+        path += getLinePattern(&lastPos, step, type, (1.0/lineFactor) );
     }
-    if (patCount != 0){
-        // last pattern not finished, patCount > 0, but less, taht pattern size
-        //path += getLinePattern(&lastPos, step, type, lineScale, patCount);
-    }
+
     return path;
 }
 
-std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, RS2::LineType type, int lineScale, int patCount) const
+std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, RS2::LineType type, double lineScale, int patCount) const
 {
     std::string path;
 
@@ -1026,7 +1022,7 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
     return path;
 }
 
-std::string LC_MakerCamSVG::getPointSegment(RS_Vector *lastPos, RS_Vector step, int lineScale) const
+std::string LC_MakerCamSVG::getPointSegment(RS_Vector *lastPos, RS_Vector step, double lineScale) const
 {
     std::string path;
     path += svgPathMoveTo(*lastPos);
@@ -1035,7 +1031,7 @@ std::string LC_MakerCamSVG::getPointSegment(RS_Vector *lastPos, RS_Vector step, 
     return path;
 }
 
-std::string LC_MakerCamSVG::getLineSegment(RS_Vector *lastPos, RS_Vector step, int lineScale, bool x2)const
+std::string LC_MakerCamSVG::getLineSegment(RS_Vector *lastPos, RS_Vector step, double lineScale, bool x2)const
 {
     std::string path;
     path += svgPathMoveTo(*lastPos);
