@@ -78,11 +78,11 @@ LC_MakerCamSVG::LC_MakerCamSVG(LC_XMLWriterInterface* xmlWriter,
   ,exportImages(exportImages)
   ,convertLineTypes(convertLineTypes)
   ,xmlWriter(xmlWriter)
+  ,offset(0.,0.)
   ,defaultElementWidth(defaultElementWidth)
   ,defaultDashLinePatternLength(defaultDashLinePatternLength)
 {
     RS_DEBUG->print("RS_MakerCamSVG::RS_MakerCamSVG()");
-    offset = RS_Vector(0.,0.);
 }
 
 bool LC_MakerCamSVG::generate(RS_Graphic* graphic) {

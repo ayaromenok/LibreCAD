@@ -69,7 +69,9 @@ void LC_ActionFileExportMakerCam::trigger() {
                                                                (bool)RS_SETTINGS->readNumEntry("/WriteBlocksInline"),
                                                                (bool)RS_SETTINGS->readNumEntry("/ConvertEllipsesToBeziers"),
                                                                (bool)RS_SETTINGS->readNumEntry("/ExportImages"),
-                                                               (bool)RS_SETTINGS->readNumEntry("/BakeDashDotLines"))
+                                                               (bool)RS_SETTINGS->readNumEntry("/BakeDashDotLines"),
+                                                               (double)RS_SETTINGS->readEntry("/DefaultElementWidth").toDouble(),
+                                                               (double)RS_SETTINGS->readEntry("/DefaultDashLinePatternLength").toDouble())
 														  );
 
                 RS_SETTINGS->endGroup();
