@@ -940,7 +940,15 @@ std::string LC_MakerCamSVG::svgPathAnyLineType(RS_Vector startpoint, RS_Vector e
     default: { lineScale = lineScaleOne; lineFactor = dotFactor; break;}
     }
 
-    double lineStep = lineScale*defaultDashLinePatternLength*lineFactor;
+    //don't have any sence to have pattern longer than a line
+    double dashLinePatternLength = defaultDashLinePatternLength;
+
+    if (lineLengh < (dashLinePatternLength*lineFactor*lineScale)) {
+        dashLinePatternLength = lineLengh/(lineFactor*lineScale);
+        RS_DEBUG->print(RS_Debug::D_WARNING, "Line length shorter than a line pattern, updated length is %f mm", dashLinePatternLength);
+    }
+
+    double lineStep = lineScale*dashLinePatternLength*lineFactor;
     int numOfIter = round(lineLengh/lineStep);
 
     RS_Vector step((endpoint.x-startpoint.x)/numOfIter,(endpoint.y-startpoint.y)/numOfIter);
