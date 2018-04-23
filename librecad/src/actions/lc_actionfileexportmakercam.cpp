@@ -3,6 +3,7 @@
 ** This file is part of the LibreCAD project, a 2D CAD program
 **
 ** Copyright (C) 2014 Christian Luginbühl (dinkel@pimprecords.com)
+** Copyright (C) 2018 Andrey Yaromenok (ayaromenok@gmail.com)
 **
 **
 ** This program is free software; you can redistribute it and/or modify
