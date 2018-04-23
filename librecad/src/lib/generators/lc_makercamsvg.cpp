@@ -1025,8 +1025,17 @@ std::string LC_MakerCamSVG::getLinePattern(RS_Vector *lastPos, RS_Vector step, R
 std::string LC_MakerCamSVG::getPointSegment(RS_Vector *lastPos, RS_Vector step, double lineScale) const
 {
     std::string path;
+    //0.2 - is a diametr of point on early implementation of MakerCAM.
+    //! \todo need to add a option to control this value from export dialog and test on laser engraver
+    const double dotSize = 0.2;
+    double scaleTo;
+    if (abs(step.x) >= abs(step.y)){
+        scaleTo = dotSize/abs(step.x);
+    } else {
+        scaleTo = dotSize/abs(step.y);
+    }
     path += svgPathMoveTo(*lastPos);
-    path += svgPathLineTo(*lastPos+RS_Vector(0.2,0.2));
+    path += svgPathLineTo(*lastPos+step*scaleTo);
     *lastPos += step*lineScale;
     return path;
 }
