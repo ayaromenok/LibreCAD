@@ -1,8 +1,4 @@
-With this plugins you can import drawings in PIC file format. 
-These can generated with transfig/fig2dev:
+This is a experimental plugin to evaluate a possibility to import a SVG as a vector.
 
-$ fig2dev -L pic drawing.fig
+QXmlStreamReader is a first choise, while in future this canbe changed
 
-so you are able to migrated Xfig drawings to LireCAD.
-
-cgrzemba, 2014
