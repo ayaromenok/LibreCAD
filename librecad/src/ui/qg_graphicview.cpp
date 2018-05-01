@@ -904,7 +904,8 @@ void QG_GraphicView::paintEvent(QPaintEvent *)
     // Draw Layer 1
     if (redrawMethod & RS2::RedrawGrid)
     {
-        PixmapLayer1->fill(background);
+        //PixmapLayer1->fill(background);
+        PixmapLayer1->fill(Qt::transparent);
         RS_PainterQt painter1(PixmapLayer1.get());
         drawLayer1((RS_Painter*)&painter1);
         painter1.end();
@@ -915,7 +916,8 @@ void QG_GraphicView::paintEvent(QPaintEvent *)
         view_rect = LC_Rect(toGraph(0, 0),
                             toGraph(getWidth(), getHeight()));
         // DRaw layer 2
-        PixmapLayer2->fill(Qt::transparent);
+        //PixmapLayer2->fill(Qt::transparent);
+        PixmapLayer2->fill(background);
         RS_PainterQt painter2(PixmapLayer2.get());
         if (antialiasing)
         {
@@ -943,9 +945,10 @@ void QG_GraphicView::paintEvent(QPaintEvent *)
 
     // Finally paint the layers back on the screen, bitblk to the rescue!
     RS_PainterQt wPainter(this);
-    wPainter.drawPixmap(0,0,*PixmapLayer1);
+
     wPainter.drawPixmap(0,0,*PixmapLayer2);
     wPainter.drawPixmap(0,0,*PixmapLayer3);
+    wPainter.drawPixmap(0,0,*PixmapLayer1);
     wPainter.end();
 
     redrawMethod=RS2::RedrawNone;
