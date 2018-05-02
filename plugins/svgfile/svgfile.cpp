@@ -30,7 +30,7 @@
 #include "document_interface.h"
 #include "svgfile.h"
 #include <QDebug>
-
+#include <QXmlStreamReader>
 PluginCapabilities SvgFile::getCapabilities() const
 {
     PluginCapabilities pluginCapabilities;
@@ -67,6 +67,7 @@ svgPunto::svgPunto(QWidget *parent) :  QDialog(parent)
     _edScale = new QLineEdit();
     _edScale->setValidator(val);
     _edScale->setText("1.0");
+    _scale = 1.0; // save to settings
 
     QFormLayout *flo = new QFormLayout;
     flo->addRow( btFile, _edFile);
@@ -130,5 +131,67 @@ void svgPunto::checkAccept()
 void svgPunto::processFileSvg(QFile* file)
 {
     qDebug() << "processFileSVG" << file->fileName();
+
+    QXmlStreamReader reader(file);
+
+    if (reader.readNextStartElement()) {
+        if (reader.name() == "svg"){
+            qDebug() << "svg";
+            while(reader.readNextStartElement()){
+                parseGroup(&reader);
+            }
+        }
+        else{
+            qDebug() << "not a SVG";
+            reader.raiseError(QObject::tr("Incorrect file"));
+        }
+    }
+
+}
+
+void svgPunto::parseGroup(QXmlStreamReader *reader)
+{
+    if(reader->name() == "g"){
+        qDebug() << "parse" << reader->name();
+        while(reader->readNextStartElement()){
+            if(reader->name() == "line"){
+                QXmlStreamAttributes attr(reader->attributes());
+                drawLine(&attr);
+                //we need only attribs, but need to jump to next element
+                reader->readElementText();
+            } else if(reader->name() == "path"){
+                QString s = reader->readElementText();
+                qDebug() << "parse" << reader->name();
+            } else if (reader->name() == "g")
+            {
+                parseGroup(reader);
+            }
+            else {
+                reader->skipCurrentElement();
+                qDebug() << "skip2" << reader->name();
+
+            }
+        }
+    }
+    else{
+        reader->skipCurrentElement();
+        qDebug() << "skip" << reader->name();
+    }
+
+}
+
+void svgPunto::drawLine(QXmlStreamAttributes *attr)
+{
+    QPointF p1, p2;
+    if (4 == attr->length()){
+        p1.setX(attr->at(0).value().toFloat());
+        p1.setY(attr->at(1).value().toFloat());
+        p2.setX(attr->at(2).value().toFloat());
+        p2.setY(attr->at(3).value().toFloat());
+        _curDoc->addLine(&p1, &p2);
+        qDebug() << "line" << p1 << p2;
+    } else {
+        qDebug() << "something went wrong";
+    }
 
 }

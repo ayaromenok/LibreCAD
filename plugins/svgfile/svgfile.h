@@ -30,6 +30,8 @@ class pointBox;
 class textBox;
 class pointData;
 class QVBoxLayout;
+class QXmlStreamReader;
+class QXmlStreamAttributes;
 
 class SvgFile : public QObject, QC_PluginInterface
 {
@@ -64,12 +66,13 @@ class svgPunto : public QDialog
 //        void readSettings();
 //        void writeSettings();
         void processFileSvg(QFile* file);
-//        void drawLine();
+        void parseGroup(QXmlStreamReader *reader);
+        void drawLine(QXmlStreamAttributes *attr);
 //        void drawCircle(QString x, QString y, QString rad);
 //        void drawText(QString x, QString y, QString txt, QString align);
 //        void drawBox(QString posx, QString posy, QString width, QString height);
 //        bool failGUI(QString *msg);
-//        double getPValue(QString posxy);
+//        double getPValue(const QString* value);
     
     private:
 //        QString errmsg;
@@ -78,8 +81,9 @@ class svgPunto : public QDialog
 //        QList<pointData*> dataList;
     
         Document_Interface *_curDoc;
+
 //        int cnt;
-//        double scale;
+        double _scale;
 };
 
 
