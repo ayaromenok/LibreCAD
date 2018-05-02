@@ -29,6 +29,7 @@
 
 #include "document_interface.h"
 #include "svgfile.h"
+#include <QDebug>
 
 PluginCapabilities SvgFile::getCapabilities() const
 {
@@ -56,7 +57,38 @@ void SvgFile::execComm(Document_Interface *doc,
 /*****************************/
 svgPunto::svgPunto(QWidget *parent) :  QDialog(parent)
 {
+    QGridLayout *mainLayout = new QGridLayout;
 
+    QPushButton *btFile = new QPushButton(tr("File..."));
+    _edFile = new QLineEdit();
+
+    QDoubleValidator *val = new QDoubleValidator(0);
+    val->setBottom ( 0.0 );
+    _edScale = new QLineEdit();
+    _edScale->setValidator(val);
+    _edScale->setText("1.0");
+
+    QFormLayout *flo = new QFormLayout;
+    flo->addRow( btFile, _edFile);
+    flo->addRow( tr("Scale:"), _edScale);
+    mainLayout->addLayout(flo, 0, 0);
+
+    QHBoxLayout *hBoxLayoutAcceptCancel = new QHBoxLayout;
+    QPushButton *btAccept = new QPushButton(tr("Accept"));
+    hBoxLayoutAcceptCancel->addStretch();
+    hBoxLayoutAcceptCancel->addWidget(btAccept);
+
+    QPushButton *btCancel = new QPushButton(tr("Cancel"));
+    hBoxLayoutAcceptCancel->addWidget(btCancel);
+    mainLayout->addLayout(hBoxLayoutAcceptCancel, 1, 0);
+
+    setLayout(mainLayout);
+    //readSettings();
+
+    connect(btCancel, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(btAccept, SIGNAL(clicked()), this, SLOT(checkAccept()));
+
+    connect(btFile, SIGNAL(clicked()), this, SLOT(svgFile()));
 }
 
 svgPunto::~svgPunto()
@@ -66,5 +98,37 @@ svgPunto::~svgPunto()
 
 void svgPunto::processFile(Document_Interface *doc)
 {
+    _curDoc = doc;
+    if (!QFile::exists(_edFile->text()) ) {
+        QMessageBox::critical ( this, "svgPunto", QString(tr("The file %1 not exist")).arg(_edFile->text()) );
+        return;
+    }
+    QFile inFile(_edFile->text());
+    if (!inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::critical ( this, "svgPunto", QString(tr("Can't open the file %1")).arg(_edFile->text()) );
+         return;
+    }
+
+    QString curLayer = doc->getCurrentLayer();
+    processFileSvg(&inFile);
+    inFile.close ();
+
+//    QMessageBox::information(this, "Info", QString(tr("%1 objects imported")).arg(cnt) );
+    _curDoc = NULL;
+}
+
+void svgPunto::svgFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"));
+    _edFile->setText(fileName);
+}
+void svgPunto::checkAccept()
+{
+    accept();
+}
+
+void svgPunto::processFileSvg(QFile* file)
+{
+    qDebug() << "processFileSVG" << file->fileName();
 
 }

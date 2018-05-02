@@ -55,15 +55,15 @@ class svgPunto : public QDialog
         ~svgPunto();
         void SetupUI(QWidget *parent);
     
-//    public slots:
-//        void dptFile();
+    public slots:
+        void svgFile();
         void processFile(Document_Interface *doc);
-//        void checkAccept();
+        void checkAccept();
     
 //    private:
 //        void readSettings();
 //        void writeSettings();
-//        void processFilePic(QFile* file);
+        void processFileSvg(QFile* file);
 //        void drawLine();
 //        void drawCircle(QString x, QString y, QString rad);
 //        void drawText(QString x, QString y, QString txt, QString align);
@@ -71,13 +71,13 @@ class svgPunto : public QDialog
 //        bool failGUI(QString *msg);
 //        double getPValue(QString posxy);
     
-//    private:
+    private:
 //        QString errmsg;
-//        QLineEdit *fileedit;
-//        QLineEdit *scaleedit;
+        QLineEdit* _edFile;
+        QLineEdit* _edScale;
 //        QList<pointData*> dataList;
     
-//        Document_Interface *currDoc;
+        Document_Interface *_curDoc;
 //        int cnt;
 //        double scale;
 };
