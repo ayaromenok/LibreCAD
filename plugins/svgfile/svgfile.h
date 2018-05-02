@@ -70,10 +70,12 @@ class svgPunto : public QDialog
         void drawLine(QXmlStreamAttributes *attr);
         void drawCircle(QXmlStreamAttributes *attr);
         void drawPath(QXmlStreamAttributes *attr);
+        void parseSvgAttribs(QXmlStreamAttributes *attr);
 //        void drawText(QString x, QString y, QString txt, QString align);
 //        void drawBox(QString posx, QString posy, QString width, QString height);
 //        bool failGUI(QString *msg);
 //        double getPValue(const QString* value);
+        float getY(float value) {return (-value + _height);}
     
     private:
 //        QString errmsg;
@@ -85,6 +87,7 @@ class svgPunto : public QDialog
 
 //        int cnt;
         double _scale;
+        float _height; //to flip svg image
 };
 
 

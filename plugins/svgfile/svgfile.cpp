@@ -137,6 +137,8 @@ void svgPunto::processFileSvg(QFile* file)
     if (reader.readNextStartElement()) {
         if (reader.name() == "svg"){
             qDebug() << "svg";
+            QXmlStreamAttributes attr(reader.attributes());
+            parseSvgAttribs(&attr);
             while(reader.readNextStartElement()){
                 parseGroup(&reader);
             }
@@ -191,9 +193,9 @@ void svgPunto::drawLine(QXmlStreamAttributes *attr)
     QPointF p1, p2;
     if (4 == attr->length()){
         p1.setX(attr->at(0).value().toFloat());
-        p1.setY(attr->at(1).value().toFloat());
+        p1.setY(getY(attr->at(1).value().toFloat()));
         p2.setX(attr->at(2).value().toFloat());
-        p2.setY(attr->at(3).value().toFloat());
+        p2.setY(getY(attr->at(3).value().toFloat()));
         _curDoc->addLine(&p1, &p2);
         qDebug() << "line" << p1 << p2;
     } else {
@@ -206,7 +208,7 @@ void svgPunto::drawCircle(QXmlStreamAttributes *attr)
     QPointF p1;
     if (3 == attr->length()){
         p1.setX(attr->at(0).value().toFloat());
-        p1.setY(attr->at(1).value().toFloat());
+        p1.setY(getY(attr->at(1).value().toFloat()));
         _curDoc->addCircle(&p1, attr->at(2).value().toFloat());
         qDebug() << "circle" << p1 << "radius" << attr->at(2).value().toFloat();
     } else {
@@ -216,5 +218,34 @@ void svgPunto::drawCircle(QXmlStreamAttributes *attr)
 
 void svgPunto::drawPath(QXmlStreamAttributes *attr)
 {
-    qDebug() << "path" << attr->length();
+   // all path is one attibute
+    qDebug() << "todo - Mirror by vertical!!!! ";
+    if (1 == attr->length()){
+        qDebug() << "path" << attr->at(0).value();
+        const QString* strPath = attr->at(0).value().string();
+        QStringList strlPath = strPath->split(" ");
+        //Mxx,yy - moveTo, Lxx,yy - lineTo, Axx,yy xx,yy xx,yy - arc,Z - ?
+
+    } else {
+        qDebug() << "something went wrong";
+    }
+}
+
+void
+svgPunto::parseSvgAttribs(QXmlStreamAttributes *attr)
+{
+    for (int i=0; i<attr->size(); i++){
+        if (attr->at(i).name() == "width") {
+            qDebug() << "width" << attr->at(i).value();
+        } else if (attr->at(i).name() == "height") {
+            QString value(attr->at(i).value().toString());
+            value.chop(2);
+            _height = value.toFloat();
+            qDebug() << "height" << _height << "mm";
+        } else if (attr->at(i).name() == "viewBox") {
+            qDebug() << "viewbox" << attr->at(i).value();
+        } else {
+            qDebug() << "skipped: " << attr->at(i).name();
+        }
+    }
 }
