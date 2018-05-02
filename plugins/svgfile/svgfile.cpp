@@ -160,9 +160,15 @@ void svgPunto::parseGroup(QXmlStreamReader *reader)
                 //we need only attribs, but need to jump to next element
                 reader->readElementText();
             } else if(reader->name() == "path"){
-                QString s = reader->readElementText();
-                qDebug() << "parse" << reader->name();
-            } else if (reader->name() == "g")
+                QXmlStreamAttributes attr(reader->attributes());
+                drawPath(&attr);
+                reader->readElementText();
+            } else if(reader->name() == "circle"){
+                QXmlStreamAttributes attr(reader->attributes());
+                drawCircle(&attr);
+                reader->readElementText();
+            }
+            else if (reader->name() == "g")
             {
                 parseGroup(reader);
             }
@@ -193,5 +199,22 @@ void svgPunto::drawLine(QXmlStreamAttributes *attr)
     } else {
         qDebug() << "something went wrong";
     }
+}
 
+void svgPunto::drawCircle(QXmlStreamAttributes *attr)
+{
+    QPointF p1;
+    if (3 == attr->length()){
+        p1.setX(attr->at(0).value().toFloat());
+        p1.setY(attr->at(1).value().toFloat());
+        _curDoc->addCircle(&p1, attr->at(2).value().toFloat());
+        qDebug() << "circle" << p1 << "radius" << attr->at(2).value().toFloat();
+    } else {
+        qDebug() << "something went wrong";
+    }
+}
+
+void svgPunto::drawPath(QXmlStreamAttributes *attr)
+{
+    qDebug() << "path" << attr->length();
 }

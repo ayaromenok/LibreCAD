@@ -68,7 +68,8 @@ class svgPunto : public QDialog
         void processFileSvg(QFile* file);
         void parseGroup(QXmlStreamReader *reader);
         void drawLine(QXmlStreamAttributes *attr);
-//        void drawCircle(QString x, QString y, QString rad);
+        void drawCircle(QXmlStreamAttributes *attr);
+        void drawPath(QXmlStreamAttributes *attr);
 //        void drawText(QString x, QString y, QString txt, QString align);
 //        void drawBox(QString posx, QString posy, QString width, QString height);
 //        bool failGUI(QString *msg);
