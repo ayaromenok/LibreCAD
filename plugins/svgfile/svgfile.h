@@ -70,6 +70,8 @@ class svgPunto : public QDialog
         void drawLine(QXmlStreamAttributes *attr);
         void drawCircle(QXmlStreamAttributes *attr);
         void drawPath(QXmlStreamAttributes *attr);
+        void drawPathData(QStringList *d);
+        void processPathPoint(QPointF *p, QString *str);
         void parseSvgAttribs(QXmlStreamAttributes *attr);
 //        void drawText(QString x, QString y, QString txt, QString align);
 //        void drawBox(QString posx, QString posy, QString width, QString height);

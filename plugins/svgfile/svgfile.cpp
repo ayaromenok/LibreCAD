@@ -219,13 +219,23 @@ void svgPunto::drawCircle(QXmlStreamAttributes *attr)
 void svgPunto::drawPath(QXmlStreamAttributes *attr)
 {
    // all path is one attibute
-    qDebug() << "todo - Mirror by vertical!!!! ";
-    if (1 == attr->length()){
-        qDebug() << "path" << attr->at(0).value();
-        const QString* strPath = attr->at(0).value().string();
-        QStringList strlPath = strPath->split(" ");
-        //Mxx,yy - moveTo, Lxx,yy - lineTo, Axx,yy xx,yy xx,yy - arc,Z - ?
-
+    if (attr->length()>0){
+        for (int i=0; i<attr->length(); i++){
+            if ("d" == attr->at(i).name()){
+                //case-sensetive
+                // https://www.w3.org/TR/SVG2/paths.html#DProperty
+                //Mxx,yy - moveTo, Lxx,yy - lineTo, Axx,yy xx,yy xx,yy - arc,Z - ?
+                QStringList strLstPath = attr->at(i).value().toString().split(" ");
+                drawPathData(&strLstPath);
+                qDebug() << "path" << strLstPath;
+            } else if ("style" == attr->at(i).name()){
+                qDebug() << "style, not supported for now";
+            } else if ("id" == attr->at(i).name()){
+                qDebug() << "id, not supported for now";
+            } else {
+                qDebug() << "attr not supported" << attr->at(i).name();
+            }
+        }
     } else {
         qDebug() << "something went wrong";
     }
@@ -247,5 +257,77 @@ svgPunto::parseSvgAttribs(QXmlStreamAttributes *attr)
         } else {
             qDebug() << "skipped: " << attr->at(i).name();
         }
+    }
+}
+
+void
+svgPunto::drawPathData(QStringList *d)
+{
+    QPointF p0;
+    QPointF pPrev, pCurr;
+    //d="M10,70 L10,30 L50,10 L80,50 L80,70 L10,70 "         //librecad exp
+    //d="M 100 15 l 50 160 l -130 -100 l 160 0 l -130 100 z" //esvg-test-suite
+    //d="m 21.166666,284.90476 -17.3869042,-60.47619 58.9642862,53.67261 //inkscape
+    //40.821422,-36.28571 30.2381,47.62501 -76.351189,29.48213 z"
+
+
+    for (int i=0; i<d->length(); ++i){
+        if (d->at(i).contains("M")){
+            qDebug() << "abs MoveTo" << d->at(i);
+            if (0==i){
+                qDebug() << "startPoint";
+                //fill p0
+            }
+            if (d->at(i).length() > 1){
+                QString strTmp = d->at(i).right(d->at(i).length()-1);
+                if (strTmp.contains(",")){
+                    QStringList strLstXY = strTmp.split(",");
+                    pCurr.setX(strLstXY.at(0).toFloat());
+                    pCurr.setY(strLstXY.at(1).toFloat());
+                }
+            }
+        } else if (d->at(i).contains("l")){
+            qDebug() << "rel MoveTo" << d->at(i);
+        } else if (d->at(i).contains("L")){
+            qDebug() << "abs LineTo" << d->at(i);
+            if (d->at(i).length() > 1){
+                QString strTmp = d->at(i).right(d->at(i).length()-1);
+                if (strTmp.contains(",")){
+                    QStringList strLstXY = strTmp.split(",");
+                    pCurr.setX(strLstXY.at(0).toFloat());
+                    pCurr.setY(strLstXY.at(1).toFloat());
+                }
+            }
+        } else if (d->at(i).contains("l")){
+            qDebug() << "rel LineTo" << d->at(i);
+        } else if (d->at(i).contains("v")){
+            qDebug() << "rel Vert LineTo" << d->at(i);
+        } else if (d->at(i).contains("V")){
+            qDebug() << "abs Vert LineTo" << d->at(i);
+        } else if (d->at(i).contains("h")){
+            qDebug() << "rel Horz LineTo" << d->at(i);
+        } else if (d->at(i).contains("H")){
+            qDebug() << "abs Horz LineTo" << d->at(i);
+        } else if (d->at(i).contains("z",Qt::CaseInsensitive)){
+            qDebug() << "close to firts point" << d->at(i);
+        } else {
+            qDebug() << "just digits:" << d->at(i);
+            if (strTmp.contains(",")){
+                QStringList strLstXY = strTmp.split(",");
+                pCurr.setX(strLstXY.at(0).toFloat());
+                pCurr.setY(strLstXY.at(1).toFloat());
+            }
+        }
+        qDebug() << "current" << pCurr;
+    }
+}
+void
+svgPunto::processPathPoint(QPointF *p, QString *str){
+    if (str->contains("M"))
+    {
+        qDebug() <<"need to think about this";
+        QStringList strLstData = str->right(str->length()-1).split(",");
+        p->setX(strLstData.at(0).toFloat());
+        p->setY(strLstData.at(1).toFloat());
     }
 }
