@@ -266,75 +266,128 @@ svgPunto::getXYfromStr(QPointF *p, QString *str)
     if (str->contains(",")){
         QStringList strLstXY = str->split(",");
         p->setX(strLstXY.at(0).toFloat());
-        p->setY(getY(strLstXY.at(1).toFloat()) );
+        //p->setY(getY(strLstXY.at(1).toFloat()) );//need to mirror all points together
+        p->setY(strLstXY.at(1).toFloat());
         return true;
     }
     return false;
 }
+
+bool
+svgPunto::getXfromStr(QPointF *p, QString *str)
+{
+    p->setX(str->toFloat());
+    return true;
+}
+
+bool
+svgPunto::getYfromStr(QPointF *p, QString *str)
+{
+    p->setY(str->toFloat());
+    return true;
+}
+
 void
 svgPunto::drawPathData(QStringList *d)
 {
-    //! todo find more suitable pPref value for init
-    QPointF pPrev(0.00001f, 0.0f), pCurr(0.0f, 0.0f);
+    QPointF pPrev(0.0f, 0.0f), pCurr(0.0f, 0.0f);
     QVector<QPointF> vecP;
+    bool isRel = false; //relative (l,m,h,v) or absolute (L, M, H, V)
+    bool pCurIsChanged = false;
 
-    //d="M10,70 L10,30 L50,10 L80,50 L80,70 L10,70 "         //librecad exp
-    //d="M 100 15 l 50 160 l -130 -100 l 160 0 l -130 100 z" //esvg-test-suite
-    //d="m 21.166666,284.90476 -17.3869042,-60.47619 58.9642862,53.67261 //inkscape
-    //40.821422,-36.28571 30.2381,47.62501 -76.351189,29.48213 z"
-
+    //d="m 0,297 10,-40 h 40 v 29.99999 z"
 
     for (int i=0; i<d->length(); ++i){
         QString str(d->at(i));
-        if (str.contains("M")){
-            qDebug() << "abs MoveTo" << str;
-            if (0==i){
-                qDebug() << "startPoint";
-                //fill p0
+        qDebug() << "processing" << str;
+        if (str.contains("M", Qt::CaseInsensitive)){
+            qDebug() << "MoveTo" << str;
+            if (str.contains("m")) {isRel = true;}
+            if (1 == str.length()){
+                i++;
+                str = d->at(i);
+            } else {
+                str = str.right(str.length()-1);
             }
-            if (str.length() > 1){
-                QString strTmp = str.right(str.length()-1);
-                getXYfromStr(&pCurr, &strTmp);
+            qDebug() << "processing" << str;
+            pCurIsChanged = getXYfromStr(&pCurr, &str);
+
+        } else if (str.contains("L", Qt::CaseInsensitive)){
+            qDebug() << "LineTo" << str;
+            if (str.contains("l")) {isRel = true;}
+            if (1 == str.length()){
+                i++;
+                str = d->at(i);
+            } else {
+                str = str.right(str.length()-1);
             }
-        } else if (str.contains("l")){
-            qDebug() << "rel MoveTo" << str;
-        } else if (str.contains("L")){
-            qDebug() << "abs LineTo" << str;
-            if (str.length() > 1){
-                QString strTmp = str.right(str.length()-1);
-                getXYfromStr(&pCurr, &strTmp);
+            qDebug() << "processing" << str;
+            pCurIsChanged = getXYfromStr(&pCurr, &str);
+
+        } else if (str.contains("V", Qt::CaseInsensitive)){
+            qDebug() << "Vert LineTo" << str;
+            if (str.contains("v")) {isRel = true;}
+            if (1 == str.length()){
+                i++;
+                str = d->at(i);
+            } else {
+                str = str.right(str.length()-1);
             }
-        } else if (str.contains("l")){
-            qDebug() << "rel LineTo" << str;
-        } else if (str.contains("v")){
-            qDebug() << "rel Vert LineTo" << str;
-        } else if (str.contains("V")){
-            qDebug() << "abs Vert LineTo" << str;
-        } else if (str.contains("h")){
-            qDebug() << "rel Horz LineTo" << str;
-        } else if (str.contains("H")){
-            qDebug() << "abs Horz LineTo" << str;
-        } else if (str.contains("z",Qt::CaseInsensitive)){
-            qDebug() << "close to firts point" << str;
+            qDebug() << "processing" << str;
+            pCurIsChanged = getYfromStr(&pCurr, &str);
+            pCurr.setX(pPrev.x());
+            if (isRel){
+                pCurr.setY(pCurr.y()+pPrev.y());
+                isRel = false;
+            }
+
+        } else if (str.contains("H", Qt::CaseInsensitive)){
+            qDebug() << "Horz LineTo" << str;
+            if (str.contains("h")) {isRel = true;}
+            if (1 == str.length()){
+                i++;
+                str = d->at(i);
+            } else {
+                str = str.right(str.length()-1);
+            }
+            qDebug() << "processing" << str;
+            pCurIsChanged = getXfromStr(&pCurr, &str);
+            pCurr.setY(pPrev.y());
+            if (isRel){
+                pCurr.setX(pCurr.x()+pPrev.x());
+                isRel = false;
+            }
+
+        } else if (str.contains("Z", Qt::CaseInsensitive)){
+            qDebug() << "close to first point" << str;
+            pCurr = vecP.at(0);
+            pCurIsChanged = true;
+            isRel = false;
         } else {
             qDebug() << "just digits:" << str;
-            getXYfromStr(&pCurr, &str);
+            pCurIsChanged = getXYfromStr(&pCurr, &str);
         }
         qDebug() << "current" << pCurr;
 
-        if (pPrev != pCurr){
+        if (pCurIsChanged){
+            if (isRel)
+                pCurr += pPrev;
             vecP.append(pCurr);
             pPrev = pCurr;
+            pCurIsChanged = false;
         }
     }
     if (vecP.length()>0){
         qDebug() << vecP;
+
         for (int i=1; i< vecP.length(); i++){
             pPrev = vecP.at(i-1);
+            pPrev.setY(getY(pPrev.y()));//need to mirror by Y all points
             pCurr = vecP.at(i);
+            pCurr.setY(getY(pCurr.y()));//need to mirror by Y all points
             _curDoc->addLine(&pPrev, &pCurr);
         }
-
+        //addPolyLine
     }
 }
 void
