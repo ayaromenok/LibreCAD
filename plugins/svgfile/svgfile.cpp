@@ -260,11 +260,24 @@ svgPunto::parseSvgAttribs(QXmlStreamAttributes *attr)
     }
 }
 
+bool
+svgPunto::getXYfromStr(QPointF *p, QString *str)
+{
+    if (str->contains(",")){
+        QStringList strLstXY = str->split(",");
+        p->setX(strLstXY.at(0).toFloat());
+        p->setY(getY(strLstXY.at(1).toFloat()) );
+        return true;
+    }
+    return false;
+}
 void
 svgPunto::drawPathData(QStringList *d)
 {
-    QPointF p0;
-    QPointF pPrev, pCurr;
+    //! todo find more suitable pPref value for init
+    QPointF pPrev(0.00001f, 0.0f), pCurr(0.0f, 0.0f);
+    QVector<QPointF> vecP;
+
     //d="M10,70 L10,30 L50,10 L80,50 L80,70 L10,70 "         //librecad exp
     //d="M 100 15 l 50 160 l -130 -100 l 160 0 l -130 100 z" //esvg-test-suite
     //d="m 21.166666,284.90476 -17.3869042,-60.47619 58.9642862,53.67261 //inkscape
@@ -272,53 +285,56 @@ svgPunto::drawPathData(QStringList *d)
 
 
     for (int i=0; i<d->length(); ++i){
-        if (d->at(i).contains("M")){
-            qDebug() << "abs MoveTo" << d->at(i);
+        QString str(d->at(i));
+        if (str.contains("M")){
+            qDebug() << "abs MoveTo" << str;
             if (0==i){
                 qDebug() << "startPoint";
                 //fill p0
             }
-            if (d->at(i).length() > 1){
-                QString strTmp = d->at(i).right(d->at(i).length()-1);
-                if (strTmp.contains(",")){
-                    QStringList strLstXY = strTmp.split(",");
-                    pCurr.setX(strLstXY.at(0).toFloat());
-                    pCurr.setY(strLstXY.at(1).toFloat());
-                }
+            if (str.length() > 1){
+                QString strTmp = str.right(str.length()-1);
+                getXYfromStr(&pCurr, &strTmp);
             }
-        } else if (d->at(i).contains("l")){
-            qDebug() << "rel MoveTo" << d->at(i);
-        } else if (d->at(i).contains("L")){
-            qDebug() << "abs LineTo" << d->at(i);
-            if (d->at(i).length() > 1){
-                QString strTmp = d->at(i).right(d->at(i).length()-1);
-                if (strTmp.contains(",")){
-                    QStringList strLstXY = strTmp.split(",");
-                    pCurr.setX(strLstXY.at(0).toFloat());
-                    pCurr.setY(strLstXY.at(1).toFloat());
-                }
+        } else if (str.contains("l")){
+            qDebug() << "rel MoveTo" << str;
+        } else if (str.contains("L")){
+            qDebug() << "abs LineTo" << str;
+            if (str.length() > 1){
+                QString strTmp = str.right(str.length()-1);
+                getXYfromStr(&pCurr, &strTmp);
             }
-        } else if (d->at(i).contains("l")){
-            qDebug() << "rel LineTo" << d->at(i);
-        } else if (d->at(i).contains("v")){
-            qDebug() << "rel Vert LineTo" << d->at(i);
-        } else if (d->at(i).contains("V")){
-            qDebug() << "abs Vert LineTo" << d->at(i);
-        } else if (d->at(i).contains("h")){
-            qDebug() << "rel Horz LineTo" << d->at(i);
-        } else if (d->at(i).contains("H")){
-            qDebug() << "abs Horz LineTo" << d->at(i);
-        } else if (d->at(i).contains("z",Qt::CaseInsensitive)){
-            qDebug() << "close to firts point" << d->at(i);
+        } else if (str.contains("l")){
+            qDebug() << "rel LineTo" << str;
+        } else if (str.contains("v")){
+            qDebug() << "rel Vert LineTo" << str;
+        } else if (str.contains("V")){
+            qDebug() << "abs Vert LineTo" << str;
+        } else if (str.contains("h")){
+            qDebug() << "rel Horz LineTo" << str;
+        } else if (str.contains("H")){
+            qDebug() << "abs Horz LineTo" << str;
+        } else if (str.contains("z",Qt::CaseInsensitive)){
+            qDebug() << "close to firts point" << str;
         } else {
-            qDebug() << "just digits:" << d->at(i);
-            if (strTmp.contains(",")){
-                QStringList strLstXY = strTmp.split(",");
-                pCurr.setX(strLstXY.at(0).toFloat());
-                pCurr.setY(strLstXY.at(1).toFloat());
-            }
+            qDebug() << "just digits:" << str;
+            getXYfromStr(&pCurr, &str);
         }
         qDebug() << "current" << pCurr;
+
+        if (pPrev != pCurr){
+            vecP.append(pCurr);
+            pPrev = pCurr;
+        }
+    }
+    if (vecP.length()>0){
+        qDebug() << vecP;
+        for (int i=1; i< vecP.length(); i++){
+            pPrev = vecP.at(i-1);
+            pCurr = vecP.at(i);
+            _curDoc->addLine(&pPrev, &pCurr);
+        }
+
     }
 }
 void

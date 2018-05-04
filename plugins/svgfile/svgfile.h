@@ -78,6 +78,7 @@ class svgPunto : public QDialog
 //        bool failGUI(QString *msg);
 //        double getPValue(const QString* value);
         float getY(float value) {return (-value + _height);}
+        bool getXYfromStr(QPointF *p, QString *str);
     
     private:
 //        QString errmsg;
