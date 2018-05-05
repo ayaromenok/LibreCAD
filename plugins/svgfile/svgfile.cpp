@@ -31,6 +31,7 @@
 #include "svgfile.h"
 #include <QDebug>
 #include <QXmlStreamReader>
+
 PluginCapabilities SvgFile::getCapabilities() const
 {
     PluginCapabilities pluginCapabilities;
@@ -290,8 +291,8 @@ svgPunto::getYfromStr(QPointF *p, QString *str)
 void
 svgPunto::drawPathData(QStringList *d)
 {
-    QPointF pPrev(0.0f, 0.0f), pCurr(0.0f, 0.0f);
-    QVector<QPointF> vecP;
+    QPointF pPrev(0.0f, 0.0f), pCurr(0.0f, 0.0f);    
+    std::vector<Plug_VertexData> vecP;
     bool isRel = false; //relative (l,m,h,v) or absolute (L, M, H, V)
     bool pCurIsChanged = false;
 
@@ -360,7 +361,7 @@ svgPunto::drawPathData(QStringList *d)
 
         } else if (str.contains("Z", Qt::CaseInsensitive)){
             qDebug() << "close to first point" << str;
-            pCurr = vecP.at(0);
+            pCurr = vecP.at(0).point;
             pCurIsChanged = true;
             isRel = false;
         } else {
@@ -372,22 +373,17 @@ svgPunto::drawPathData(QStringList *d)
         if (pCurIsChanged){
             if (isRel)
                 pCurr += pPrev;
-            vecP.append(pCurr);
+            vecP.push_back(Plug_VertexData(pCurr, 0.0));
             pPrev = pCurr;
             pCurIsChanged = false;
         }
     }
-    if (vecP.length()>0){
-        qDebug() << vecP;
-
-        for (int i=1; i< vecP.length(); i++){
-            pPrev = vecP.at(i-1);
-            pPrev.setY(getY(pPrev.y()));//need to mirror by Y all points
-            pCurr = vecP.at(i);
-            pCurr.setY(getY(pCurr.y()));//need to mirror by Y all points
-            _curDoc->addLine(&pPrev, &pCurr);
+    if (vecP.size()>0){
+        qDebug() << "vecP size" << vecP.size();
+        for(int i=0; i<vecP.size(); i++){
+            vecP[i].point.setY(getY(vecP.at(i).point.ry()));
         }
-        //addPolyLine
+        _curDoc->addPolyline(vecP);
     }
 }
 void
