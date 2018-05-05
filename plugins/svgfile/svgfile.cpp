@@ -295,7 +295,7 @@ svgPunto::drawPathData(QStringList *d)
     std::vector<Plug_VertexData> vecP;
     bool isRel = false; //relative (l,m,h,v) or absolute (L, M, H, V)
     bool pCurIsChanged = false;
-
+    bool isClosed = false;
     //d="m 0,297 10,-40 h 40 v 29.99999 z"
 
     for (int i=0; i<d->length(); ++i){
@@ -361,9 +361,7 @@ svgPunto::drawPathData(QStringList *d)
 
         } else if (str.contains("Z", Qt::CaseInsensitive)){
             qDebug() << "close to first point" << str;
-            pCurr = vecP.at(0).point;
-            pCurIsChanged = true;
-            isRel = false;
+            isClosed = true;
         } else {
             qDebug() << "just digits:" << str;
             pCurIsChanged = getXYfromStr(&pCurr, &str);
@@ -383,7 +381,7 @@ svgPunto::drawPathData(QStringList *d)
         for(int i=0; i<vecP.size(); i++){
             vecP[i].point.setY(getY(vecP.at(i).point.ry()));
         }
-        _curDoc->addPolyline(vecP);
+        _curDoc->addPolyline(vecP, isClosed);
     }
 }
 void
