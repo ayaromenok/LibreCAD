@@ -31,6 +31,7 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QSettings>
+#include <QAction>
 
 ColorWizard::ColorWizard(QWidget *parent) :
     QFrame(parent),

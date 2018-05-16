@@ -30,6 +30,7 @@
 #include <QSettings>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QActionGroup>
 
 WidgetCreator::WidgetCreator(QWidget* parent,
                              QMap<QString, QAction*>& actions,

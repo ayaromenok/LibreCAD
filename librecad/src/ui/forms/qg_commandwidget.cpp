@@ -30,6 +30,7 @@
 #include <QKeyEvent>
 #include <QFileDialog>
 #include <QSettings>
+#include <QAction>
 
 #include "qg_actionhandler.h"
 #include "rs_commands.h"
