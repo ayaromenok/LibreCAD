@@ -879,7 +879,7 @@ void LC_MakerCamSVG::writeImage(RS_Image* image)
         xmlWriter->addAttribute("height", lengthXml(image->getImageHeight()));
         xmlWriter->addAttribute("width", lengthXml(image->getImageWidth()));
         xmlWriter->addAttribute("preserveAspectRatio", "none");  //height and width above used
-        xmlWriter->addAttribute("xlink:href", image->getData().file.toStdString());
+        xmlWriter->addAttribute("href", image->getData().file.toStdString(), NAMESPACE_URI_XLINK);
         xmlWriter->closeElement();
     }
 }
